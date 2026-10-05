@@ -344,7 +344,7 @@
       margin-right: 4px;
     }
 
-    /* IN-GAME TOP HUD (Modernized) */
+    /* IN-GAME TOP HUD */
     #top-hud-left {
       position: fixed;
       top: 20px;
@@ -417,7 +417,7 @@
       display: flex;
     }
 
-    /* EXIT GAME BUTTON ("lagyan mo exit sa pinaka laro") */
+    /* EXIT GAME BUTTON */
     .hud-exit-btn {
       display: inline-flex;
       align-items: center;
@@ -511,7 +511,7 @@
       display: block;
     }
 
-    /* MINIMAP (Bottom Left - Pag Playing Na) */
+    /* MINIMAP (Bottom Left - During Gameplay) */
     #minimap-container {
       position: fixed;
       bottom: 20px;
@@ -583,7 +583,7 @@
       to { opacity: 1; transform: scale(1.03); }
     }
 
-    /* Sub-modals for Google / FB Account */
+    /* Sub-modals for Google / Facebook Account */
     .sub-modal {
       position: fixed;
       top: 0;
@@ -792,7 +792,7 @@
     <div><span class="key-pill">ESC</span> Leave / Exit Arena</div>
   </div>
 
-  <!-- In-Game MINIMAP (Bottom Left - Pag Playing Na) -->
+  <!-- In-Game MINIMAP (Bottom Left - During Gameplay) -->
   <div id="minimap-container">
     <div class="minimap-header">
       <span>Map Radar</span>
@@ -807,10 +807,10 @@
   <div id="exitModal">
     <div class="exit-modal-card">
       <h3>Exit Game Arena?</h3>
-      <p>Babalik ka sa main landing page. Mase-save ang iyong score record.</p>
+      <p>You will return to the main landing page. Your session score will be saved.</p>
       <div class="exit-modal-actions">
-        <button id="exitCancelBtn" class="btn-exit-cancel">Magpatuloy</button>
-        <button id="exitConfirmBtn" class="btn-exit-confirm">I-exit Na</button>
+        <button id="exitCancelBtn" class="btn-exit-cancel">Stay in Arena</button>
+        <button id="exitConfirmBtn" class="btn-exit-confirm">Confirm Exit</button>
       </div>
     </div>
   </div>
@@ -869,7 +869,7 @@
 
         <div class="key-hints">
           <div><span class="key-pill">R</span> Eject Food</div>
-          <div><span class="key-pill">SPACE</span> Split / Hati</div>
+          <div><span class="key-pill">SPACE</span> Split Cell</div>
           <div><span class="key-pill">Mouse</span> Move Aim</div>
           <div><span class="key-pill">ESC</span> Leave Arena</div>
         </div>
@@ -889,7 +889,7 @@
         </svg>
         Sign in with Google
       </h3>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:18px;">Pumili ng account para maglaro sa Cellular Devour</p>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:18px;">Choose an account to play Cellular Devour</p>
       
       <div class="account-select-item" onclick="selectAccount('Richard Belen', 'richardbelen99@gmail.com', 'google', 'https://api.dicebear.com/7.x/bottts/svg?seed=RichardBelen')">
         <img src="https://api.dicebear.com/7.x/bottts/svg?seed=RichardBelen" style="width:38px; height:38px; border-radius:50%;" alt="av">
@@ -920,7 +920,7 @@
         </svg>
         Log in with Facebook
       </h3>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:18px;">I-connect ang Cellular Devour sa iyong Facebook account</p>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:18px;">Connect Cellular Devour with your Facebook account</p>
 
       <div class="account-select-item" onclick="selectAccount('Richard Belen', 'richard.belen.fb@facebook.com', 'facebook', 'https://api.dicebear.com/7.x/avataaars/svg?seed=RichardFB')">
         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=RichardFB" style="width:38px; height:38px; border-radius:50%;" alt="av">
@@ -943,7 +943,7 @@
   </div>
 
   <script>
-    // State & Auth
+    // State & Authentication
     let currentUser = null;
     let ws = null;
     let myId = null;
@@ -954,7 +954,7 @@
     let mousePos = { x: 0, y: 0 };
     let ejectInterval = null;
 
-    // Elements
+    // DOM Elements
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const minimapCanvas = document.getElementById('minimapCanvas');
@@ -988,7 +988,7 @@
     const exitCancelBtn = document.getElementById('exitCancelBtn');
     const exitConfirmBtn = document.getElementById('exitConfirmBtn');
 
-    // Resize
+    // Canvas Resize Handling
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -1031,7 +1031,7 @@
       }
     }
 
-    // Modal Triggers
+    // Modal Events
     googleLoginBtn.addEventListener('click', () => googleModal.classList.add('active'));
     fbLoginBtn.addEventListener('click', () => fbModal.classList.add('active'));
 
@@ -1065,7 +1065,7 @@
       showToast('Logged out of account');
     });
 
-    // Audio Synth
+    // Web Audio Synthesizer
     let audioCtx = null;
     function playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.15) {
       try {
@@ -1090,7 +1090,7 @@
       setTimeout(() => toastNotice.classList.remove('show'), 2600);
     }
 
-    // Start / Enter Arena
+    // Start / Enter Game Arena
     playBtn.addEventListener('click', startGame);
 
     function startGame() {
@@ -1112,7 +1112,7 @@
       connectWebSocket({ name: chosenName, avatar, authProvider });
     }
 
-    // EXIT GAME FUNCTIONALITY ("lagyan mo exit sa pinaka laro")
+    // Exit Game Functionality
     exitBtn.addEventListener('click', () => {
       exitModal.classList.add('active');
     });
@@ -1142,12 +1142,12 @@
       controlsHud.classList.remove('active');
       minimapContainer.classList.remove('active');
 
-      // Return to landing page
+      // Return to main landing page
       overlay.classList.remove('hidden');
-      showToast('Naka-exit ka na sa arena. Maaari kang maglaro muli anumang oras!');
+      showToast('Exited arena. You can rejoin anytime!');
     }
 
-    // WebSocket Connection
+    // WebSocket Management
     function connectWebSocket(playerInfo) {
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'join', ...playerInfo }));
@@ -1171,10 +1171,10 @@
           updateLeaderboardAndHUD();
         } else if (data.type === 'burst') {
           playTone(200, 'sawtooth', 0.25, 0.3);
-          showToast('💥 OBSTACLE BURST! PUMUTOK ANG CELL AT LUMAKI KA!');
+          showToast('💥 OBSTACLE BURST! CELL SPLIT & MASS BONUS!');
         } else if (data.type === 'eaten') {
           playTone(100, 'square', 0.3, 0.3);
-          showToast('💀 NAKAIN KA NG MAS MALAKING CELL!');
+          showToast('💀 DEVOURED BY A LARGER CELL!');
           setTimeout(() => {
             if (isPlaying && ws && ws.readyState === WebSocket.OPEN) {
               ws.send(JSON.stringify({ type: 'respawn' }));
@@ -1184,7 +1184,7 @@
       };
     }
 
-    // Controls & Keybinds
+    // Keyboard & Mouse Controls
     window.addEventListener('mousemove', (e) => {
       mousePos.x = e.clientX;
       mousePos.y = e.clientY;
@@ -1201,7 +1201,7 @@
     window.addEventListener('keydown', (e) => {
       if (!isPlaying) return;
 
-      // ESC: Exit Game
+      // ESC: Toggle Exit Modal
       if (e.key === 'Escape') {
         if (exitModal.classList.contains('active')) {
           exitModal.classList.remove('active');
@@ -1213,7 +1213,7 @@
 
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
-      // Key 'R': Eject Food (Sabay maglalabas lahat ng cells at mababawasan)
+      // Key 'R': Eject Food Pellets (All cells shoot simultaneously)
       if (e.key === 'r' || e.key === 'R') {
         if (!ejectInterval) {
           sendEject();
@@ -1244,7 +1244,7 @@
       }
     }
 
-    // Leaderboard & HUD
+    // Leaderboard & HUD Updates
     function updateLeaderboardAndHUD() {
       const me = gameState.players ? gameState.players.find(p => p.id === myId) : null;
       if (me) {
@@ -1278,7 +1278,7 @@
       })[m]);
     }
 
-    // Minimap (Radar - Ikaw lamang ang makikita)
+    // Radar Minimap (Only the local player is displayed)
     function renderMinimap(me) {
       mCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
       const scale = minimapCanvas.width / mapSize;
@@ -1298,7 +1298,7 @@
         mCtx.stroke();
       }
 
-      // Minimap Border
+      // Minimap Outer Border
       mCtx.strokeStyle = 'rgba(5, 217, 232, 0.4)';
       mCtx.lineWidth = 2;
       mCtx.strokeRect(1, 1, minimapCanvas.width - 2, minimapCanvas.height - 2);
@@ -1310,7 +1310,7 @@
       const miniX = avgX * scale;
       const miniY = avgY * scale;
 
-      // Border proximity alert ("alam niya kung nasa dulo na siya")
+      // Border Proximity Warning (Detects if near map boundaries)
       const BORDER_THRESHOLD = 320;
       const nearWest = avgX < BORDER_THRESHOLD;
       const nearEast = avgX > mapSize - BORDER_THRESHOLD;
@@ -1329,7 +1329,7 @@
         borderAlert.classList.remove('active');
       }
 
-      // Radar scan pulse effect
+      // Radar Pulse Effect
       const pulseTime = Date.now() / 400;
       const pulseRadius = 5 + (Math.sin(pulseTime) + 1) * 3;
       mCtx.beginPath();
@@ -1338,7 +1338,7 @@
       mCtx.lineWidth = 1.5;
       mCtx.stroke();
 
-      // Glowing local player beacon
+      // Local Player Glowing Beacon
       mCtx.beginPath();
       mCtx.arc(miniX, miniY, 4, 0, Math.PI * 2);
       mCtx.fillStyle = '#00ff88';
@@ -1348,7 +1348,7 @@
       mCtx.shadowBlur = 0;
     }
 
-    // Grid rendering
+    // Grid Drawing
     function drawGrid(camX, camY) {
       const gridSize = 65;
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.032)';
@@ -1373,7 +1373,7 @@
       }
     }
 
-    // Spiky Obstacle (Virus)
+    // Spiky Obstacle (Virus) Drawing
     function drawObstacle(x, y, radius) {
       const spikes = 16;
       const rot = Date.now() / 3200;
@@ -1418,7 +1418,7 @@
       const me = gameState.players ? gameState.players.find(p => p.id === myId) : null;
 
       if (me && me.cells && me.cells.length > 0) {
-        // Smooth camera centering sa center of mass ng player cells
+        // Smooth camera centering on center of mass of player cells
         const targetCamX = me.cells.reduce((s, c) => s + c.x, 0) / me.cells.length;
         const targetCamY = me.cells.reduce((s, c) => s + c.y, 0) / me.cells.length;
         camera.x += (targetCamX - camera.x) * 0.15;
@@ -1436,7 +1436,7 @@
       ctx.lineWidth = 10;
       ctx.strokeRect(0, 0, mapSize, mapSize);
 
-      // 1. Pellets (Small Energy Dots)
+      // 1. Regular Pellets (Small Energy Dots)
       if (gameState.pellets) {
         gameState.pellets.forEach(pellet => {
           ctx.beginPath();
@@ -1447,7 +1447,7 @@
         });
       }
 
-      // 2. Ejected Food Pellets (Malalaki at may glow particles ayon sa request)
+      // 2. Ejected Food Pellets (Enlarged bio-pellets with core glow)
       if (gameState.ejectedPellets) {
         gameState.ejectedPellets.forEach(ep => {
           ctx.beginPath();
@@ -1478,13 +1478,13 @@
         });
       }
 
-      // 4. Render All Player Cells with Wall Bending ("nag bebend din pag nadikit sa pader pero onti lang")
+      // 4. Render All Player Cells with Wall Bending
       if (gameState.players) {
         gameState.players.forEach(player => {
           if (!player.cells) return;
 
           player.cells.forEach(cell => {
-            // Kalkulahin ang deformation / squish kapag dumidikit sa pader (BENDING ONTI LANG)
+            // Compute wall deformation squish
             let scaleX = 1;
             let scaleY = 1;
             let offsetX = 0;
@@ -1525,7 +1525,7 @@
               offsetY = -squish * r * 0.35;
             }
 
-            // I-draw ang Cell na may Bending Deformation
+            // Draw Cell with Bending Deformation
             ctx.save();
             ctx.translate(cell.x + offsetX, cell.y + offsetY);
             ctx.scale(scaleX, scaleY);
@@ -1550,7 +1550,7 @@
 
             ctx.restore();
 
-            // Nickname & Mass Label (Nananatiling pantay ang teksto kahit nagbe-bend ang cell)
+            // Nickname & Mass Label (Rendered without distortion)
             ctx.fillStyle = '#ffffff';
             ctx.font = `bold ${Math.max(12, Math.min(22, cell.radius * 0.42))}px Plus Jakarta Sans, sans-serif`;
             ctx.textAlign = 'center';
