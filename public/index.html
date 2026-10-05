@@ -3,112 +3,975 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cellular Devour - Eat, Grow & Dominate</title>
+  <title>Cellular Devour - Multiplayer Micro-Organism Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { overflow: hidden; background: #0b0e14; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-    canvas { display: block; }
-    
+    :root {
+      --bg-dark: #07090e;
+      --card-bg: rgba(15, 20, 31, 0.88);
+      --card-border: rgba(255, 255, 255, 0.09);
+      --accent-pink: #ff2a6d;
+      --accent-cyan: #05d9e8;
+      --accent-green: #00ff88;
+      --accent-purple: #7928ca;
+      --fb-blue: #1877f2;
+      --google-red: #ea4335;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      overflow: hidden;
+      background: var(--bg-dark);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      color: var(--text-main);
+    }
+
+    canvas#gameCanvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    /* Screen Overlay / Landing Modal */
     #overlay {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(11, 14, 20, 0.92); display: flex;
-      justify-content: center; align-items: center; z-index: 10;
-    }
-    .card {
-      background: #161b26; padding: 40px; border-radius: 16px;
-      text-align: center; color: white; width: 350px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-      border: 1px solid #232d3f;
-    }
-    .card h1 { 
-      margin-bottom: 6px; font-size: 2.1rem; font-weight: 800;
-      letter-spacing: 1px; color: #ff3366; 
-    }
-    .card p { color: #8a99ad; font-size: 0.9rem; margin-bottom: 22px; }
-    .card input {
-      width: 100%; padding: 14px; margin-bottom: 16px; border: 1px solid #2d384d;
-      background: #0b0e14; border-radius: 8px; outline: none; font-size: 1rem;
-      color: white; text-align: center;
-    }
-    .card input:focus { border-color: #ff3366; }
-    .card button {
-      width: 100%; padding: 14px; background: #ff3366; border: none;
-      border-radius: 8px; color: white; font-weight: bold; font-size: 1.05rem;
-      cursor: pointer; transition: transform 0.1s, background 0.2s;
-    }
-    .card button:hover { background: #e62e5c; transform: translateY(-1px); }
-
-    #controls-hint {
-      margin-top: 18px; font-size: 0.82rem; color: #5b6b7f; line-height: 1.5;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(14, 21, 37, 0.82) 0%, rgba(5, 7, 12, 0.96) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
     }
 
-    #leaderboard {
-      position: absolute; top: 20px; right: 20px;
-      background: rgba(22, 27, 38, 0.85); padding: 16px 20px;
-      border-radius: 12px; color: white; min-width: 200px; z-index: 5;
+    #overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+      animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn {
+      from { transform: translateY(24px) scale(0.96); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .main-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 36px 32px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65), 0 0 40px rgba(255, 42, 109, 0.12);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .main-card::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(255, 42, 109, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 42, 109, 0.12);
+      border: 1px solid rgba(255, 42, 109, 0.3);
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--accent-pink);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 14px;
+    }
+
+    .game-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff 30%, #ff7ea5 70%, #05d9e8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .game-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 26px;
+    }
+
+    /* Auth Buttons */
+    .auth-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn-oauth {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 13px 18px;
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+
+    .btn-google {
+      background: #ffffff;
+      color: #1f2937;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+    .btn-google:hover {
+      background: #f8fafc;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-fb {
+      background: var(--fb-blue);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(24, 119, 242, 0.3);
+    }
+    .btn-fb:hover {
+      background: #166fe5;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(24, 119, 242, 0.45);
+    }
+
+    .btn-icon {
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 18px 0;
+      color: #475569;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .divider span {
+      padding: 0 12px;
+    }
+
+    /* Guest / Nickname Input */
+    .input-box {
+      width: 100%;
+      padding: 13px 18px;
+      background: rgba(10, 14, 22, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      text-align: center;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+      margin-bottom: 12px;
+    }
+    .input-box:focus {
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 0 3px rgba(255, 42, 109, 0.2);
+    }
+
+    .btn-play {
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, var(--accent-pink) 0%, #ff4b8b 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(255, 42, 109, 0.4);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-play:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(255, 42, 109, 0.55);
+      background: linear-gradient(135deg, #ff1a63 0%, #ff3880 100%);
+    }
+
+    /* Logged-in Profile Badge */
+    .profile-card {
+      display: none;
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 14px 18px;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+      margin-bottom: 18px;
     }
-    #leaderboard h3 { 
-      font-size: 0.95rem; margin-bottom: 10px; border-bottom: 1px solid #2d384d; 
-      padding-bottom: 6px; color: #ff3366; text-transform: uppercase; letter-spacing: 1px;
+    .profile-card.active {
+      display: flex;
     }
-    #leaderboard ol { padding-left: 20px; font-size: 0.9rem; color: #d0d7de; }
-    #leaderboard li { margin-bottom: 4px; }
+    .profile-avatar-wrap {
+      position: relative;
+    }
+    .profile-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #1e293b;
+      border: 2px solid var(--accent-pink);
+    }
+    .profile-provider-badge {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+    .profile-info {
+      flex: 1;
+      overflow: hidden;
+    }
+    .profile-name {
+      font-weight: 700;
+      font-size: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .profile-email {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .profile-logout {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .profile-logout:hover {
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    /* Keybinds Legend / Tips */
+    .key-hints {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+    .key-pill {
+      display: inline-block;
+      padding: 2px 7px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      margin-right: 4px;
+    }
+
+    /* Top HUD */
+    #top-hud {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      display: none;
+      align-items: center;
+      gap: 14px;
+      z-index: 50;
+    }
+    #top-hud.active {
+      display: flex;
+    }
+    .hud-player-pill {
+      background: rgba(15, 20, 31, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      padding: 8px 18px 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .hud-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--accent-pink);
+    }
+    .hud-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .hud-mass {
+      font-size: 0.82rem;
+      color: var(--accent-cyan);
+      font-weight: 800;
+      margin-left: 6px;
+    }
+
+    /* Leaderboard */
+    #leaderboard {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(15, 20, 31, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 16px 20px;
+      min-width: 220px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      display: none;
+    }
+    #leaderboard.active {
+      display: block;
+    }
+    #leaderboard h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-pink);
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #leaderboard ol {
+      list-style-position: inside;
+      font-size: 0.85rem;
+    }
+    #leaderboard li {
+      padding: 4px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #cbd5e1;
+    }
+    #leaderboard li.me {
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+    .lb-tag {
+      font-size: 0.72rem;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+    .lb-score {
+      font-weight: 700;
+      color: #f8fafc;
+      font-size: 0.8rem;
+    }
+
+    /* Controls HUD (Bottom Right) */
+    #controls-hud {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(15, 20, 31, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      z-index: 50;
+      display: none;
+      line-height: 1.8;
+    }
+    #controls-hud.active {
+      display: block;
+    }
+
+    /* MINIMAP (Bottom Left - Pag Playing Na) */
+    #minimap-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 50;
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    #minimap-container.active {
+      display: flex;
+    }
+
+    .minimap-card {
+      position: relative;
+      background: rgba(11, 16, 26, 0.92);
+      backdrop-filter: blur(14px);
+      border: 2px solid rgba(5, 217, 232, 0.3);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(5, 217, 232, 0.15);
+      width: 160px;
+      height: 160px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    canvas#minimapCanvas {
+      width: 144px;
+      height: 144px;
+      border-radius: 8px;
+      background: #060910;
+      display: block;
+    }
+
+    .minimap-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+      padding: 0 4px;
+    }
+
+    .border-alert {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 6px;
+      padding: 3px 8px;
+      display: none;
+      animation: pulseAlert 0.8s infinite alternate;
+    }
+    .border-alert.active {
+      display: inline-block;
+    }
+
+    @keyframes pulseAlert {
+      from { opacity: 0.6; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1.02); }
+    }
+
+    /* Sub-modal for Google / Facebook Account Simulation */
+    .sub-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      z-index: 200;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    .sub-modal.active {
+      display: flex;
+    }
+    .sub-modal-card {
+      background: #181f2f;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 28px;
+      width: 90%;
+      max-width: 380px;
+      text-align: left;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      animation: modalFadeIn 0.25s ease-out;
+    }
+    .account-select-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: all 0.15s ease;
+    }
+    .account-select-item:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: var(--accent-pink);
+    }
+    .modal-close-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      color: #cbd5e1;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Burst Toast notification */
+    #toast-notice {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(0, 255, 136, 0.2);
+      border: 1px solid #00ff88;
+      color: #00ff88;
+      backdrop-filter: blur(12px);
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #toast-notice.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Notification Toast for Burst / Eaten -->
+  <div id="toast-notice">💥 OBSTACLE BURST! +MASS BONUS!</div>
+
+  <!-- In-Game Top HUD -->
+  <div id="top-hud">
+    <div class="hud-player-pill">
+      <img id="hudAvatar" class="hud-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Richard" alt="avatar">
+      <span id="hudName" class="hud-name">Player</span>
+      <span id="hudMass" class="hud-mass">Mass: 22</span>
+    </div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div id="leaderboard">
+    <h3>Top Players <span style="font-size:0.75rem; color:#64748b;">Live</span></h3>
+    <ol id="leaderboardList"></ol>
+  </div>
+
+  <!-- Controls Cheat Sheet (Bottom Right) -->
+  <div id="controls-hud">
+    <div><span class="key-pill">Mouse</span> Araw / Direction</div>
+    <div><span class="key-pill">SPACE</span> Mag-hati / Split (2x)</div>
+    <div><span class="key-pill">R</span> Maglabas ng Food Pellet</div>
+  </div>
+
+  <!-- MINIMAP (Bottom Left - Pag Playing Na) -->
+  <div id="minimap-container">
+    <div class="minimap-header">
+      <span>Map Radar</span>
+      <span id="borderAlert" class="border-alert">BORDER NEAR</span>
+    </div>
+    <div class="minimap-card">
+      <canvas id="minimapCanvas" width="144" height="144"></canvas>
+    </div>
+  </div>
+
+  <!-- MAIN LANDING / LOGIN SCREEN -->
   <div id="overlay">
-    <div class="card">
-      <h1>CELLULAR DEVOUR</h1>
-      <p>Absorb energy dots. Devour smaller cells.</p>
-      <input type="text" id="nickname" placeholder="Enter Nickname" maxlength="14">
-      <button id="startBtn">PLAY NOW</button>
-      <div id="controls-hint">
-        <strong>Mouse:</strong> Move Direction<br>
-        <strong>Spacebar:</strong> Split / Dash Attack
+    <div class="login-container">
+      <div class="main-card">
+        <div class="logo-badge">Multiplayer Battle Arena</div>
+        <h1 class="game-title">CELLULAR DEVOUR</h1>
+        <p class="game-subtitle">Eject food, split your cell, and dominate the arena.</p>
+
+        <!-- Authenticated Profile Card (Shows when logged in) -->
+        <div id="profileCard" class="profile-card">
+          <div class="profile-avatar-wrap">
+            <img id="profImg" class="profile-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Richard" alt="avatar">
+            <div id="profBadge" class="profile-provider-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24"><path fill="#ea4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/></svg>
+            </div>
+          </div>
+          <div class="profile-info">
+            <div id="profName" class="profile-name">Richard Belen</div>
+            <div id="profEmail" class="profile-email">richardbelen99@gmail.com</div>
+          </div>
+          <button id="logoutBtn" class="profile-logout" title="Switch or Logout">Logout</button>
+        </div>
+
+        <!-- Social Login Buttons (Shows when not logged in) -->
+        <div id="authButtons" class="auth-section">
+          <!-- Google Login Button -->
+          <button id="googleLoginBtn" class="btn-oauth btn-google">
+            <span class="btn-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.26 21.36 7.34 24 12 24z"/>
+                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.97 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+              </svg>
+            </span>
+            Continue with Google
+          </button>
+
+          <!-- Facebook Login Button -->
+          <button id="fbLoginBtn" class="btn-oauth btn-fb">
+            <span class="btn-icon">
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </span>
+            Continue with Facebook
+          </button>
+        </div>
+
+        <div class="divider"><span>OR PLAY AS GUEST</span></div>
+
+        <!-- Guest Nickname input -->
+        <input type="text" id="nicknameInput" class="input-box" placeholder="Enter Nickname..." maxlength="15">
+        <button id="playBtn" class="btn-play">ENTER ARENA</button>
+
+        <!-- Key Hints Legend -->
+        <div class="key-hints">
+          <div><span class="key-pill">R</span> Eject Food</div>
+          <div><span class="key-pill">SPACE</span> Split / Hati</div>
+          <div><span class="key-pill">Mouse</span> Move Aim</div>
+          <div><span class="key-pill">Radar</span> Minimap (Left)</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div id="leaderboard">
-    <h3>Leaderboard</h3>
-    <ol id="leaderboardList"></ol>
+  <!-- Google Sign-in Modal Simulator -->
+  <div id="googleModal" class="sub-modal">
+    <div class="sub-modal-card">
+      <h3 style="font-family:'Outfit'; font-size:1.15rem; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.26 21.36 7.34 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.97 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        Sign in with Google
+      </h3>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:18px;">Choose an account to continue to Cellular Devour</p>
+      
+      <!-- Primary Account Option -->
+      <div class="account-select-item" onclick="selectAccount('Richard Belen', 'richardbelen99@gmail.com', 'google', 'https://api.dicebear.com/7.x/bottts/svg?seed=RichardBelen')">
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=RichardBelen" style="width:38px; height:38px; border-radius:50%;" alt="av">
+        <div>
+          <div style="font-weight:700; font-size:0.92rem;">Richard Belen</div>
+          <div style="font-size:0.75rem; color:#94a3b8;">richardbelen99@gmail.com</div>
+        </div>
+      </div>
+
+      <!-- Custom Account Option -->
+      <div class="account-select-item" onclick="promptCustomAccount('google')">
+        <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.2rem;">+</div>
+        <div>
+          <div style="font-weight:700; font-size:0.92rem;">Use another Google account</div>
+          <div style="font-size:0.75rem; color:#94a3b8;">Enter custom Gmail & name</div>
+        </div>
+      </div>
+
+      <button class="modal-close-btn" onclick="closeModals()">Cancel</button>
+    </div>
   </div>
 
-  <canvas id="gameCanvas"></canvas>
+  <!-- Facebook Sign-in Modal Simulator -->
+  <div id="fbModal" class="sub-modal">
+    <div class="sub-modal-card">
+      <h3 style="font-family:'Outfit'; font-size:1.15rem; margin-bottom:6px; display:flex; align-items:center; gap:8px; color:var(--fb-blue);">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+        Log in with Facebook
+      </h3>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:18px;">Connect Cellular Devour with your Facebook profile</p>
+
+      <div class="account-select-item" onclick="selectAccount('Richard Belen', 'richard.belen.fb@facebook.com', 'facebook', 'https://api.dicebear.com/7.x/avataaars/svg?seed=RichardFB')">
+        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=RichardFB" style="width:38px; height:38px; border-radius:50%;" alt="av">
+        <div>
+          <div style="font-weight:700; font-size:0.92rem;">Continue as Richard</div>
+          <div style="font-size:0.75rem; color:#94a3b8;">Facebook Profile</div>
+        </div>
+      </div>
+
+      <div class="account-select-item" onclick="promptCustomAccount('facebook')">
+        <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.2rem;">+</div>
+        <div>
+          <div style="font-weight:700; font-size:0.92rem;">Use another Facebook account</div>
+          <div style="font-size:0.75rem; color:#94a3b8;">Enter custom name/account</div>
+        </div>
+      </div>
+
+      <button class="modal-close-btn" onclick="closeModals()">Cancel</button>
+    </div>
+  </div>
 
   <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const overlay = document.getElementById('overlay');
-    const nicknameInput = document.getElementById('nickname');
-    const startBtn = document.getElementById('startBtn');
-    const leaderboardList = document.getElementById('leaderboardList');
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-
-    let ws;
+    // --- State & Authentication ---
+    let currentUser = null;
+    let ws = null;
     let myId = null;
     let mapSize = 3000;
-    let gameState = { players: [], pellets: [] };
+    let isPlaying = false;
+    let gameState = { players: [], pellets: [], ejectedPellets: [], obstacles: [] };
+    let camera = { x: 1500, y: 1500, zoom: 1 };
+    let mousePos = { x: 0, y: 0 };
+    let ejectInterval = null;
 
-    startBtn.addEventListener('click', () => {
-      const name = nicknameInput.value.trim() || 'Cell';
-      overlay.style.display = 'none';
+    // Elements
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const minimapCanvas = document.getElementById('minimapCanvas');
+    const mCtx = minimapCanvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    const nicknameInput = document.getElementById('nicknameInput');
+    const playBtn = document.getElementById('playBtn');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const fbLoginBtn = document.getElementById('fbLoginBtn');
+    const googleModal = document.getElementById('googleModal');
+    const fbModal = document.getElementById('fbModal');
+    const profileCard = document.getElementById('profileCard');
+    const profImg = document.getElementById('profImg');
+    const profName = document.getElementById('profName');
+    const profEmail = document.getElementById('profEmail');
+    const profBadge = document.getElementById('profBadge');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const authButtons = document.getElementById('authButtons');
+    const leaderboard = document.getElementById('leaderboard');
+    const leaderboardList = document.getElementById('leaderboardList');
+    const topHud = document.getElementById('top-hud');
+    const hudAvatar = document.getElementById('hudAvatar');
+    const hudName = document.getElementById('hudName');
+    const hudMass = document.getElementById('hudMass');
+    const controlsHud = document.getElementById('controls-hud');
+    const minimapContainer = document.getElementById('minimap-container');
+    const borderAlert = document.getElementById('borderAlert');
+    const toastNotice = document.getElementById('toast-notice');
+
+    // Canvas Resize
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Check LocalStorage on Load
+    function loadSavedSession() {
+      const saved = localStorage.getItem('cellular_user_session');
+      if (saved) {
+        try {
+          currentUser = JSON.parse(saved);
+          renderProfile();
+        } catch (e) {
+          localStorage.removeItem('cellular_user_session');
+        }
+      }
+    }
+    loadSavedSession();
+
+    function renderProfile() {
+      if (currentUser) {
+        profileCard.classList.add('active');
+        authButtons.style.display = 'none';
+        nicknameInput.value = currentUser.name;
+        profName.textContent = currentUser.name;
+        profEmail.textContent = currentUser.email || (currentUser.provider === 'google' ? 'Google Account' : 'Facebook Account');
+        profImg.src = currentUser.avatar;
+
+        if (currentUser.provider === 'google') {
+          profBadge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24"><path fill="#ea4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/></svg>`;
+        } else if (currentUser.provider === 'facebook') {
+          profBadge.innerHTML = `<svg width="12" height="12" fill="#1877F2" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`;
+        }
+      } else {
+        profileCard.classList.remove('active');
+        authButtons.style.display = 'flex';
+        nicknameInput.value = '';
+      }
+    }
+
+    // Modal Triggers
+    googleLoginBtn.addEventListener('click', () => googleModal.classList.add('active'));
+    fbLoginBtn.addEventListener('click', () => fbModal.classList.add('active'));
+
+    function closeModals() {
+      googleModal.classList.remove('active');
+      fbModal.classList.remove('active');
+    }
+
+    function selectAccount(name, email, provider, avatar) {
+      currentUser = { name, email, provider, avatar };
+      localStorage.setItem('cellular_user_session', JSON.stringify(currentUser));
+      renderProfile();
+      closeModals();
+      showToast(`Welcome, ${name}! Signed in via ${provider === 'google' ? 'Google' : 'Facebook'}.`);
+    }
+
+    function promptCustomAccount(provider) {
+      const defName = provider === 'google' ? 'Google Player' : 'Facebook Player';
+      const name = prompt(`Enter your ${provider === 'google' ? 'Google' : 'Facebook'} display name:`, defName);
+      if (!name) return;
+      const email = provider === 'google' ? `${name.toLowerCase().replace(/\\s+/g, '')}@gmail.com` : `${name.toLowerCase().replace(/\\s+/g, '')}@fb.com`;
+      const avatar = `https://api.dicebear.com/7.x/${provider === 'google' ? 'bottts' : 'avataaars'}/svg?seed=${encodeURIComponent(name)}`;
+      selectAccount(name, email, provider, avatar);
+    }
+
+    logoutBtn.addEventListener('click', () => {
+      currentUser = null;
+      localStorage.removeItem('cellular_user_session');
+      renderProfile();
+      showToast('Logged out of account');
+    });
+
+    // Sound Synthesizer via Web Audio API
+    let audioCtx = null;
+    function playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.15) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function showToast(msg) {
+      toastNotice.textContent = msg;
+      toastNotice.classList.add('show');
+      setTimeout(() => toastNotice.classList.remove('show'), 2800);
+    }
+
+    // Connect & Play Arena
+    playBtn.addEventListener('click', startGame);
+
+    function startGame() {
+      const chosenName = (currentUser ? currentUser.name : nicknameInput.value.trim()) || 'Cell';
+      const avatar = currentUser ? currentUser.avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(chosenName)}`;
+      const authProvider = currentUser ? currentUser.provider : 'guest';
+
+      overlay.classList.add('hidden');
+      isPlaying = true;
+
+      // Show HUD elements
+      topHud.classList.add('active');
+      leaderboard.classList.add('active');
+      controlsHud.classList.add('active');
+      minimapContainer.classList.add('active');
+
+      hudAvatar.src = avatar;
+      hudName.textContent = chosenName;
+
+      connectWebSocket({ name: chosenName, avatar, authProvider });
+    }
+
+    function connectWebSocket(playerInfo) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'join', ...playerInfo }));
+        return;
+      }
 
       const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
       ws = new WebSocket(`${protocol}//${location.host}`);
 
       ws.onopen = () => {
-        ws.send(JSON.stringify({ type: 'join', name }));
+        ws.send(JSON.stringify({ type: 'join', ...playerInfo }));
       };
 
       ws.onmessage = (event) => {
@@ -118,43 +981,192 @@
           mapSize = data.mapSize;
         } else if (data.type === 'update') {
           gameState = data.state;
-          updateLeaderboard();
+          updateLeaderboardAndHUD();
+        } else if (data.type === 'burst') {
+          playTone(180, 'sawtooth', 0.25, 0.3);
+          showToast('💥 OBSTACLE BURST! PUMUTOK ANG CELL MO AT LUMAKI KA!');
         } else if (data.type === 'eaten') {
-          console.log('You were devoured!');
+          playTone(100, 'square', 0.3, 0.3);
+          showToast('💀 NAKAIN KA NG MAS MALAKING CELL!');
+          setTimeout(() => {
+            if (isPlaying && ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'respawn' }));
+            }
+          }, 1500);
         }
       };
-    });
 
-    // Mouse Movement Tracking
+      ws.onclose = () => {
+        console.warn('Disconnected from server. Retrying...');
+      };
+    }
+
+    // --- Controls & Keybindings ---
+    // 1. Mouse Aim
     window.addEventListener('mousemove', (e) => {
-      if (!ws || ws.readyState !== WebSocket.OPEN) return;
-      const targetX = e.clientX - canvas.width / 2;
-      const targetY = e.clientY - canvas.height / 2;
-      ws.send(JSON.stringify({ type: 'move', x: targetX, y: targetY }));
+      mousePos.x = e.clientX;
+      mousePos.y = e.clientY;
+      sendMove();
     });
 
-    // Spacebar Keybind para sa Cell Split / Dash
+    function sendMove() {
+      if (!ws || ws.readyState !== WebSocket.OPEN || !isPlaying) return;
+      const targetX = mousePos.x - canvas.width / 2;
+      const targetY = mousePos.y - canvas.height / 2;
+      ws.send(JSON.stringify({ type: 'move', x: targetX, y: targetY }));
+    }
+
+    // 2. Keyboard Controls (R: Eject Food, Space: Split)
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && ws && ws.readyState === WebSocket.OPEN) {
+      if (!isPlaying || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+      // Key 'R': Eject Food
+      if (e.key === 'r' || e.key === 'R') {
+        if (!ejectInterval) {
+          sendEject();
+          ejectInterval = setInterval(sendEject, 110);
+        }
+      }
+      // Key Spacebar: Split Cell in half
+      else if (e.code === 'Space') {
+        e.preventDefault();
         ws.send(JSON.stringify({ type: 'split' }));
+        playTone(480, 'sine', 0.12, 0.2);
       }
     });
 
-    function updateLeaderboard() {
-      const sorted = [...gameState.players].sort((a, b) => b.radius - a.radius).slice(0, 5);
-      leaderboardList.innerHTML = sorted
-        .map(p => `<li>${p.name} (${Math.floor(p.radius)})</li>`)
-        .join('');
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'r' || e.key === 'R') {
+        if (ejectInterval) {
+          clearInterval(ejectInterval);
+          ejectInterval = null;
+        }
+      }
+    });
+
+    function sendEject() {
+      if (ws && ws.readyState === WebSocket.OPEN && isPlaying) {
+        ws.send(JSON.stringify({ type: 'eject' }));
+        playTone(320, 'triangle', 0.08, 0.15);
+      }
     }
 
-    function drawGrid(meX, meY) {
+    // --- Leaderboard & HUD Update ---
+    function updateLeaderboardAndHUD() {
+      const me = gameState.players.find(p => p.id === myId);
+      if (me) {
+        hudMass.textContent = `Mass: ${me.totalMass || 22}`;
+      }
+
+      const sorted = [...(gameState.players || [])]
+        .sort((a, b) => (b.totalMass || 0) - (a.totalMass || 0))
+        .slice(0, 8);
+
+      leaderboardList.innerHTML = sorted.map((p, idx) => {
+        const isMe = p.id === myId;
+        const icon = p.authProvider === 'google' 
+          ? '<span style="color:#ea4335; font-weight:bold; font-size:0.75rem;">[G]</span> '
+          : p.authProvider === 'facebook'
+          ? '<span style="color:#1877f2; font-weight:bold; font-size:0.75rem;">[FB]</span> '
+          : '<span style="color:#64748b; font-size:0.75rem;">•</span> ';
+
+        return `
+          <li class="${isMe ? 'me' : ''}">
+            <span>${idx + 1}. ${icon}${escapeHtml(p.name)}</span>
+            <span class="lb-score">${p.totalMass || 0}</span>
+          </li>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
+    }
+
+    // --- Minimap Logic ("pero dapat siya lang kita para alam niya kung nasa dulo na siya") ---
+    function renderMinimap(me) {
+      mCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+      const scale = minimapCanvas.width / mapSize;
+
+      // 1. Minimap Grid lines
+      mCtx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      mCtx.lineWidth = 1;
+      const step = minimapCanvas.width / 4;
+      for (let i = 1; i < 4; i++) {
+        mCtx.beginPath();
+        mCtx.moveTo(i * step, 0);
+        mCtx.lineTo(i * step, minimapCanvas.height);
+        mCtx.stroke();
+        mCtx.beginPath();
+        mCtx.moveTo(0, i * step);
+        mCtx.lineTo(minimapCanvas.width, i * step);
+        mCtx.stroke();
+      }
+
+      // 2. Minimap Border
+      mCtx.strokeStyle = 'rgba(5, 217, 232, 0.4)';
+      mCtx.lineWidth = 2;
+      mCtx.strokeRect(1, 1, minimapCanvas.width - 2, minimapCanvas.height - 2);
+
+      if (!me || !me.cells || me.cells.length === 0) return;
+
+      // Compute primary position ng player
+      const avgX = me.cells.reduce((s, c) => s + c.x, 0) / me.cells.length;
+      const avgY = me.cells.reduce((s, c) => s + c.y, 0) / me.cells.length;
+
+      const miniX = avgX * scale;
+      const miniY = avgY * scale;
+
+      // 3. Border Proximity Warning ("alam niya kung nasa dulo na siya or hindi")
+      const BORDER_THRESHOLD = 320;
+      const nearWest = avgX < BORDER_THRESHOLD;
+      const nearEast = avgX > mapSize - BORDER_THRESHOLD;
+      const nearNorth = avgY < BORDER_THRESHOLD;
+      const nearSouth = avgY > mapSize - BORDER_THRESHOLD;
+
+      if (nearWest || nearEast || nearNorth || nearSouth) {
+        borderAlert.classList.add('active');
+        mCtx.strokeStyle = 'rgba(239, 68, 68, 0.85)';
+        mCtx.lineWidth = 3;
+        if (nearWest) { mCtx.beginPath(); mCtx.moveTo(1, 0); mCtx.lineTo(1, minimapCanvas.height); mCtx.stroke(); }
+        if (nearEast) { mCtx.beginPath(); mCtx.moveTo(minimapCanvas.width - 1, 0); mCtx.lineTo(minimapCanvas.width - 1, minimapCanvas.height); mCtx.stroke(); }
+        if (nearNorth) { mCtx.beginPath(); mCtx.moveTo(0, 1); mCtx.lineTo(minimapCanvas.width, 1); mCtx.stroke(); }
+        if (nearSouth) { mCtx.beginPath(); mCtx.moveTo(0, minimapCanvas.height - 1); mCtx.lineTo(minimapCanvas.width, minimapCanvas.height - 1); mCtx.stroke(); }
+      } else {
+        borderAlert.classList.remove('active');
+      }
+
+      // 4. Render ONLY the player's own cell beacon (SIYA LANG ANG KITA)
+      // Pulse ring
+      const pulseTime = Date.now() / 400;
+      const pulseRadius = 5 + (Math.sin(pulseTime) + 1) * 3;
+      mCtx.beginPath();
+      mCtx.arc(miniX, miniY, pulseRadius, 0, Math.PI * 2);
+      mCtx.strokeStyle = 'rgba(0, 255, 136, 0.45)';
+      mCtx.lineWidth = 1.5;
+      mCtx.stroke();
+
+      // Main glowing beacon
+      mCtx.beginPath();
+      mCtx.arc(miniX, miniY, 4, 0, Math.PI * 2);
+      mCtx.fillStyle = '#00ff88';
+      mCtx.shadowColor = '#00ff88';
+      mCtx.shadowBlur = 8;
+      mCtx.fill();
+      mCtx.shadowBlur = 0;
+    }
+
+    // --- Main Game Rendering Loop ---
+    function drawGrid(camX, camY) {
       const gridSize = 60;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
       ctx.lineWidth = 1;
 
-      const startX = Math.floor((meX - canvas.width / 2) / gridSize) * gridSize;
+      const startX = Math.floor((camX - canvas.width / 2) / gridSize) * gridSize;
       const endX = startX + canvas.width + gridSize;
-      const startY = Math.floor((meY - canvas.height / 2) / gridSize) * gridSize;
+      const startY = Math.floor((camY - canvas.height / 2) / gridSize) * gridSize;
       const endY = startY + canvas.height + gridSize;
 
       for (let x = startX; x < endX; x += gridSize) {
@@ -171,51 +1183,144 @@
       }
     }
 
+    // Spiky Obstacle (Virus) Drawing Helper
+    function drawObstacle(x, y, radius) {
+      const spikes = 16;
+      const rot = Date.now() / 3000;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+
+      ctx.beginPath();
+      for (let i = 0; i < spikes * 2; i++) {
+        const angle = (Math.PI / spikes) * i;
+        const r = (i % 2 === 0) ? radius + 5 : radius - 3;
+        const px = Math.cos(angle) * r;
+        const py = Math.sin(angle) * r;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+
+      // Bio-Virus Glow
+      ctx.fillStyle = '#10b981';
+      ctx.shadowColor = '#10b981';
+      ctx.shadowBlur = 12;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.strokeStyle = '#34d399';
+      ctx.lineWidth = 3.5;
+      ctx.stroke();
+
+      // Inner Core
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 0.6, 0, Math.PI * 2);
+      ctx.fillStyle = '#065f46';
+      ctx.fill();
+
+      ctx.restore();
+    }
+
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const me = gameState.players.find(p => p.id === myId);
+      const me = gameState.players ? gameState.players.find(p => p.id === myId) : null;
 
-      ctx.save();
-      if (me) {
-        // Camera centering sa player cell
-        ctx.translate(canvas.width / 2 - me.x, canvas.height / 2 - me.y);
-        drawGrid(me.x, me.y);
+      if (me && me.cells && me.cells.length > 0) {
+        // Smooth camera centering sa center of mass ng player cells
+        const targetCamX = me.cells.reduce((s, c) => s + c.x, 0) / me.cells.length;
+        const targetCamY = me.cells.reduce((s, c) => s + c.y, 0) / me.cells.length;
+        camera.x += (targetCamX - camera.x) * 0.15;
+        camera.y += (targetCamY - camera.y) * 0.15;
       }
 
-      // Map Boundary
-      ctx.strokeStyle = '#232d3f';
-      ctx.lineWidth = 8;
+      ctx.save();
+      // Apply Camera View
+      ctx.translate(canvas.width / 2 - camera.x, canvas.height / 2 - camera.y);
+
+      // Background Grid
+      drawGrid(camera.x, camera.y);
+
+      // Map Borders
+      ctx.strokeStyle = 'rgba(255, 42, 109, 0.4)';
+      ctx.lineWidth = 10;
       ctx.strokeRect(0, 0, mapSize, mapSize);
 
-      // Render Energy Pellets
-      gameState.pellets.forEach(pellet => {
-        ctx.beginPath();
-        ctx.arc(pellet.x, pellet.y, pellet.radius, 0, Math.PI * 2);
-        ctx.fillStyle = pellet.color;
-        ctx.fill();
-        ctx.closePath();
-      });
+      // 1. Render Energy Pellets
+      if (gameState.pellets) {
+        gameState.pellets.forEach(pellet => {
+          ctx.beginPath();
+          ctx.arc(pellet.x, pellet.y, pellet.radius, 0, Math.PI * 2);
+          ctx.fillStyle = pellet.color;
+          ctx.fill();
+          ctx.closePath();
+        });
+      }
 
-      // Render Player Cells
-      gameState.players.forEach(player => {
-        ctx.beginPath();
-        ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-        ctx.fillStyle = player.color;
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        ctx.closePath();
+      // 2. Render Ejected Food Pellets ('R' Key food)
+      if (gameState.ejectedPellets) {
+        gameState.ejectedPellets.forEach(ep => {
+          ctx.beginPath();
+          ctx.arc(ep.x, ep.y, ep.radius, 0, Math.PI * 2);
+          ctx.fillStyle = ep.color;
+          ctx.shadowColor = ep.color;
+          ctx.shadowBlur = 10;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.closePath();
+        });
+      }
 
-        // Player Nickname Label
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 13px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(player.name, player.x, player.y + 4);
-      });
+      // 3. Render Obstacles (Viruses)
+      if (gameState.obstacles) {
+        gameState.obstacles.forEach(obs => {
+          drawObstacle(obs.x, obs.y, obs.radius);
+        });
+      }
+
+      // 4. Render All Player Cells
+      if (gameState.players) {
+        gameState.players.forEach(player => {
+          if (!player.cells) return;
+
+          player.cells.forEach(cell => {
+            ctx.beginPath();
+            ctx.arc(cell.x, cell.y, cell.radius, 0, Math.PI * 2);
+            ctx.fillStyle = player.color;
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3.5;
+            ctx.stroke();
+            ctx.closePath();
+
+            // Cell Nickname & Mass Label
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${Math.max(12, Math.min(22, cell.radius * 0.42))}px Plus Jakarta Sans, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(player.name, cell.x, cell.y);
+
+            // Mass counter underneath name if cell is big enough
+            if (cell.radius >= 28) {
+              ctx.font = `600 ${Math.max(10, Math.min(16, cell.radius * 0.28))}px Outfit, sans-serif`;
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+              ctx.fillText(Math.floor((cell.radius * cell.radius) / 20), cell.x, cell.y + (cell.radius * 0.45));
+            }
+          });
+        });
+      }
 
       ctx.restore();
+
+      // Render Minimap
+      if (isPlaying) {
+        renderMinimap(me);
+      }
+
       requestAnimationFrame(render);
     }
 
