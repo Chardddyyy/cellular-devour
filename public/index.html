@@ -6,19 +6,18 @@
   <title>Cellular Devour - Multiplayer Micro-Organism Arena</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-dark: #07090e;
-      --card-bg: rgba(15, 20, 31, 0.88);
-      --card-border: rgba(255, 255, 255, 0.09);
+      --bg-dark: #06080d;
+      --card-bg: rgba(13, 18, 30, 0.85);
+      --card-border: rgba(255, 255, 255, 0.08);
       --accent-pink: #ff2a6d;
       --accent-cyan: #05d9e8;
       --accent-green: #00ff88;
       --accent-purple: #7928ca;
       --fb-blue: #1877f2;
-      --google-red: #ea4335;
-      --text-main: #f1f5f9;
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
     }
 
@@ -40,21 +39,21 @@
       z-index: 1;
     }
 
-    /* Screen Overlay / Landing Modal */
+    /* Modern Overlay / Landing Modal */
     #overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle at center, rgba(14, 21, 37, 0.82) 0%, rgba(5, 7, 12, 0.96) 100%);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: radial-gradient(circle at 50% 40%, rgba(17, 24, 43, 0.85) 0%, rgba(5, 7, 12, 0.97) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 100;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
     }
 
     #overlay.hidden {
@@ -66,21 +65,21 @@
     .login-container {
       width: 100%;
       max-width: 440px;
-      padding: 20px;
+      padding: 24px;
       animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @keyframes modalFadeIn {
-      from { transform: translateY(24px) scale(0.96); opacity: 0; }
+      from { transform: translateY(28px) scale(0.95); opacity: 0; }
       to { transform: translateY(0) scale(1); opacity: 1; }
     }
 
     .main-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 36px 32px;
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65), 0 0 40px rgba(255, 42, 109, 0.12);
+      border-radius: 28px;
+      padding: 38px 32px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 50px rgba(255, 42, 109, 0.14);
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -89,12 +88,12 @@
     .main-card::before {
       content: '';
       position: absolute;
-      top: -120px;
+      top: -100px;
       left: 50%;
       transform: translateX(-50%);
-      width: 240px;
-      height: 240px;
-      background: radial-gradient(circle, rgba(255, 42, 109, 0.25) 0%, transparent 70%);
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(255, 42, 109, 0.28) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -102,26 +101,26 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px;
+      padding: 6px 16px;
       border-radius: 999px;
       background: rgba(255, 42, 109, 0.12);
       border: 1px solid rgba(255, 42, 109, 0.3);
-      font-size: 0.76rem;
-      font-weight: 700;
+      font-size: 0.74rem;
+      font-weight: 800;
       color: var(--accent-pink);
       text-transform: uppercase;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.8px;
       margin-bottom: 14px;
     }
 
     .game-title {
       font-family: 'Outfit', sans-serif;
-      font-size: 2.3rem;
+      font-size: 2.4rem;
       font-weight: 900;
       letter-spacing: -0.5px;
       line-height: 1.1;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, #ffffff 30%, #ff7ea5 70%, #05d9e8 100%);
+      background: linear-gradient(135deg, #ffffff 25%, #ff7ea5 70%, #05d9e8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -130,9 +129,10 @@
       font-size: 0.88rem;
       color: var(--text-muted);
       margin-bottom: 26px;
+      line-height: 1.5;
     }
 
-    /* Auth Buttons */
+    /* Social Auth Buttons */
     .auth-section {
       display: flex;
       flex-direction: column;
@@ -150,7 +150,7 @@
       border-radius: 14px;
       font-family: inherit;
       font-size: 0.95rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       border: 1px solid transparent;
@@ -159,24 +159,24 @@
 
     .btn-google {
       background: #ffffff;
-      color: #1f2937;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+      color: #1e293b;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     }
     .btn-google:hover {
       background: #f8fafc;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
     }
 
     .btn-fb {
       background: var(--fb-blue);
       color: #ffffff;
-      box-shadow: 0 4px 14px rgba(24, 119, 242, 0.3);
+      box-shadow: 0 4px 16px rgba(24, 119, 242, 0.35);
     }
     .btn-fb:hover {
-      background: #166fe5;
+      background: #156fe5;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(24, 119, 242, 0.45);
+      box-shadow: 0 8px 24px rgba(24, 119, 242, 0.5);
     }
 
     .btn-icon {
@@ -193,9 +193,9 @@
       align-items: center;
       margin: 18px 0;
       color: #475569;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 1px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
     }
     .divider::before, .divider::after {
@@ -208,20 +208,19 @@
       padding: 0 12px;
     }
 
-    /* Guest / Nickname Input */
     .input-box {
       width: 100%;
-      padding: 13px 18px;
-      background: rgba(10, 14, 22, 0.8);
+      padding: 14px 18px;
+      background: rgba(10, 14, 22, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
+      border-radius: 14px;
       color: #ffffff;
       font-size: 0.95rem;
       text-align: center;
       font-family: inherit;
       outline: none;
       transition: all 0.2s ease;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     .input-box:focus {
       border-color: var(--accent-pink);
@@ -230,31 +229,31 @@
 
     .btn-play {
       width: 100%;
-      padding: 14px 20px;
+      padding: 15px 22px;
       background: linear-gradient(135deg, var(--accent-pink) 0%, #ff4b8b 100%);
       color: #ffffff;
       border: none;
       border-radius: 14px;
       font-family: 'Outfit', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
       cursor: pointer;
-      box-shadow: 0 8px 24px rgba(255, 42, 109, 0.4);
+      box-shadow: 0 8px 26px rgba(255, 42, 109, 0.45);
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .btn-play:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(255, 42, 109, 0.55);
+      box-shadow: 0 12px 34px rgba(255, 42, 109, 0.6);
       background: linear-gradient(135deg, #ff1a63 0%, #ff3880 100%);
     }
 
-    /* Logged-in Profile Badge */
+    /* Authenticated Profile Card */
     .profile-card {
       display: none;
       background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 18px;
       padding: 14px 18px;
       align-items: center;
       gap: 14px;
@@ -293,7 +292,7 @@
       overflow: hidden;
     }
     .profile-name {
-      font-weight: 700;
+      font-weight: 800;
       font-size: 1rem;
       white-space: nowrap;
       overflow: hidden;
@@ -307,25 +306,26 @@
       text-overflow: ellipsis;
     }
     .profile-logout {
-      background: none;
-      border: none;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.25);
       color: #ef4444;
-      font-size: 0.78rem;
-      font-weight: 600;
+      font-size: 0.76rem;
+      font-weight: 700;
       cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 6px;
-      transition: background 0.2s;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: all 0.2s;
     }
     .profile-logout:hover {
-      background: rgba(239, 68, 68, 0.12);
+      background: rgba(239, 68, 68, 0.22);
+      transform: scale(1.04);
     }
 
-    /* Keybinds Legend / Tips */
+    /* Key Hints Legend */
     .key-hints {
-      margin-top: 22px;
+      margin-top: 24px;
       padding-top: 18px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
@@ -334,79 +334,131 @@
     }
     .key-pill {
       display: inline-block;
-      padding: 2px 7px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 5px;
+      padding: 2px 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
       color: #ffffff;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 0.75rem;
       border: 1px solid rgba(255, 255, 255, 0.15);
       margin-right: 4px;
     }
 
-    /* Top HUD */
-    #top-hud {
+    /* IN-GAME TOP HUD (Modernized) */
+    #top-hud-left {
       position: fixed;
       top: 20px;
       left: 20px;
       display: none;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       z-index: 50;
     }
-    #top-hud.active {
+    #top-hud-left.active {
       display: flex;
     }
-    .hud-player-pill {
-      background: rgba(15, 20, 31, 0.85);
-      backdrop-filter: blur(12px);
+
+    .hud-player-card {
+      background: rgba(13, 18, 30, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 999px;
-      padding: 8px 18px 8px 10px;
+      padding: 7px 18px 7px 8px;
       display: flex;
       align-items: center;
       gap: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
     .hud-avatar {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       border: 2px solid var(--accent-pink);
     }
-    .hud-name {
-      font-size: 0.9rem;
-      font-weight: 700;
+    .hud-name-box {
+      display: flex;
+      flex-direction: column;
     }
-    .hud-mass {
-      font-size: 0.82rem;
+    .hud-name {
+      font-size: 0.92rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .hud-stats {
+      font-size: 0.76rem;
       color: var(--accent-cyan);
       font-weight: 800;
-      margin-left: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ping-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 6px var(--accent-green);
     }
 
-    /* Leaderboard */
-    #leaderboard {
+    /* TOP RIGHT: EXIT BUTTON & LEADERBOARD */
+    #top-hud-right {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: rgba(15, 20, 31, 0.85);
+      display: none;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+      z-index: 50;
+    }
+    #top-hud-right.active {
+      display: flex;
+    }
+
+    /* EXIT GAME BUTTON ("lagyan mo exit sa pinaka laro") */
+    .hud-exit-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 12px;
+      color: #ff6b6b;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
       backdrop-filter: blur(12px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hud-exit-btn:hover {
+      background: rgba(239, 68, 68, 0.3);
+      border-color: #ef4444;
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.35);
+    }
+
+    /* Leaderboard Modern Glass Card */
+    #leaderboard {
+      background: rgba(13, 18, 30, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 18px;
+      border-radius: 20px;
       padding: 16px 20px;
       min-width: 220px;
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
-      z-index: 50;
-      display: none;
-    }
-    #leaderboard.active {
-      display: block;
     }
     #leaderboard h3 {
       font-family: 'Outfit', sans-serif;
       font-size: 0.85rem;
-      font-weight: 800;
+      font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 1.5px;
       color: var(--accent-pink);
@@ -430,35 +482,30 @@
     }
     #leaderboard li.me {
       color: var(--accent-cyan);
-      font-weight: 700;
-    }
-    .lb-tag {
-      font-size: 0.72rem;
-      padding: 1px 6px;
-      border-radius: 4px;
-      margin-right: 6px;
+      font-weight: 800;
     }
     .lb-score {
-      font-weight: 700;
+      font-weight: 800;
       color: #f8fafc;
       font-size: 0.8rem;
     }
 
-    /* Controls HUD (Bottom Right) */
+    /* CONTROLS HUD (Bottom Right) */
     #controls-hud {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: rgba(15, 20, 31, 0.8);
-      backdrop-filter: blur(10px);
+      background: rgba(13, 18, 30, 0.85);
+      backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 12px 16px;
+      border-radius: 16px;
+      padding: 14px 18px;
       font-size: 0.78rem;
       color: var(--text-muted);
       z-index: 50;
       display: none;
-      line-height: 1.8;
+      line-height: 2;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
     #controls-hud.active {
       display: block;
@@ -473,7 +520,7 @@
       display: none;
       flex-direction: column;
       align-items: flex-start;
-      gap: 6px;
+      gap: 8px;
     }
     #minimap-container.active {
       display: flex;
@@ -481,12 +528,12 @@
 
     .minimap-card {
       position: relative;
-      background: rgba(11, 16, 26, 0.92);
-      backdrop-filter: blur(14px);
-      border: 2px solid rgba(5, 217, 232, 0.3);
-      border-radius: 14px;
+      background: rgba(9, 13, 22, 0.94);
+      backdrop-filter: blur(16px);
+      border: 2px solid rgba(5, 217, 232, 0.35);
+      border-radius: 16px;
       padding: 6px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(5, 217, 232, 0.15);
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.7), 0 0 25px rgba(5, 217, 232, 0.2);
       width: 160px;
       height: 160px;
       display: flex;
@@ -498,8 +545,8 @@
     canvas#minimapCanvas {
       width: 144px;
       height: 144px;
-      border-radius: 8px;
-      background: #060910;
+      border-radius: 10px;
+      background: #05070c;
       display: block;
     }
 
@@ -511,40 +558,40 @@
       font-size: 0.72rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
       color: var(--accent-cyan);
       padding: 0 4px;
     }
 
     .border-alert {
       font-size: 0.7rem;
-      font-weight: 700;
+      font-weight: 800;
       color: #ef4444;
-      background: rgba(239, 68, 68, 0.18);
-      border: 1px solid rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.45);
       border-radius: 6px;
-      padding: 3px 8px;
+      padding: 2px 7px;
       display: none;
-      animation: pulseAlert 0.8s infinite alternate;
+      animation: pulseAlert 0.7s infinite alternate;
     }
     .border-alert.active {
       display: inline-block;
     }
 
     @keyframes pulseAlert {
-      from { opacity: 0.6; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1.02); }
+      from { opacity: 0.7; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1.03); }
     }
 
-    /* Sub-modal for Google / Facebook Account Simulation */
+    /* Sub-modals for Google / FB Account */
     .sub-modal {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
       z-index: 200;
       display: none;
       justify-content: center;
@@ -554,14 +601,14 @@
       display: flex;
     }
     .sub-modal-card {
-      background: #181f2f;
+      background: #141b2a;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 20px;
-      padding: 28px;
+      border-radius: 22px;
+      padding: 30px;
       width: 90%;
       max-width: 380px;
       text-align: left;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
       animation: modalFadeIn 0.25s ease-out;
     }
     .account-select-item {
@@ -569,9 +616,9 @@
       align-items: center;
       gap: 12px;
       padding: 12px 14px;
-      border-radius: 12px;
+      border-radius: 14px;
       background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.07);
       cursor: pointer;
       margin-bottom: 10px;
       transition: all 0.15s ease;
@@ -579,33 +626,108 @@
     .account-select-item:hover {
       background: rgba(255, 255, 255, 0.09);
       border-color: var(--accent-pink);
+      transform: translateY(-1px);
     }
     .modal-close-btn {
       width: 100%;
       margin-top: 14px;
-      padding: 10px;
+      padding: 11px;
       background: transparent;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 10px;
+      border-radius: 12px;
       color: #cbd5e1;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
+      transition: all 0.15s;
     }
     .modal-close-btn:hover {
       background: rgba(255, 255, 255, 0.08);
     }
 
-    /* Burst Toast notification */
+    /* EXIT CONFIRMATION MODAL */
+    #exitModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      z-index: 250;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    #exitModal.active {
+      display: flex;
+    }
+    .exit-modal-card {
+      background: #141b2a;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 22px;
+      padding: 30px;
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(239, 68, 68, 0.2);
+      animation: modalFadeIn 0.2s ease-out;
+    }
+    .exit-modal-card h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #f8fafc;
+    }
+    .exit-modal-card p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+    .exit-modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-exit-cancel {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      color: #cbd5e1;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-exit-cancel:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+    .btn-exit-confirm {
+      flex: 1;
+      padding: 12px;
+      background: #ef4444;
+      border: none;
+      border-radius: 12px;
+      color: #ffffff;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+    }
+    .btn-exit-confirm:hover {
+      background: #dc2626;
+    }
+
+    /* Toast Notification */
     #toast-notice {
       position: fixed;
       top: 80px;
       left: 50%;
       transform: translateX(-50%) translateY(-20px);
-      background: rgba(0, 255, 136, 0.2);
+      background: rgba(0, 255, 136, 0.18);
       border: 1px solid #00ff88;
       color: #00ff88;
-      backdrop-filter: blur(12px);
-      padding: 10px 22px;
+      backdrop-filter: blur(14px);
+      padding: 11px 24px;
       border-radius: 999px;
       font-weight: 800;
       font-size: 0.9rem;
@@ -614,6 +736,7 @@
       opacity: 0;
       pointer-events: none;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 24px rgba(0, 255, 136, 0.25);
     }
     #toast-notice.show {
       transform: translateX(-50%) translateY(0);
@@ -626,32 +749,50 @@
   <!-- Game Canvas -->
   <canvas id="gameCanvas"></canvas>
 
-  <!-- Notification Toast for Burst / Eaten -->
+  <!-- Notification Toast -->
   <div id="toast-notice">💥 OBSTACLE BURST! +MASS BONUS!</div>
 
-  <!-- In-Game Top HUD -->
-  <div id="top-hud">
-    <div class="hud-player-pill">
+  <!-- In-Game Top Left HUD -->
+  <div id="top-hud-left">
+    <div class="hud-player-card">
       <img id="hudAvatar" class="hud-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Richard" alt="avatar">
-      <span id="hudName" class="hud-name">Player</span>
-      <span id="hudMass" class="hud-mass">Mass: 22</span>
+      <div class="hud-name-box">
+        <span id="hudName" class="hud-name">Player</span>
+        <div class="hud-stats">
+          <span id="hudMass">Mass: 22</span>
+          <span>•</span>
+          <span style="display:flex; align-items:center; gap:4px;"><span class="ping-dot"></span> 24ms</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Leaderboard -->
-  <div id="leaderboard">
-    <h3>Top Players <span style="font-size:0.75rem; color:#64748b;">Live</span></h3>
-    <ol id="leaderboardList"></ol>
+  <!-- In-Game Top Right HUD (Exit Button & Leaderboard) -->
+  <div id="top-hud-right">
+    <button id="exitBtn" class="hud-exit-btn" title="Leave Match (ESC)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      Leave Arena
+    </button>
+
+    <div id="leaderboard">
+      <h3>Top Players <span style="font-size:0.75rem; color:#64748b;">Live</span></h3>
+      <ol id="leaderboardList"></ol>
+    </div>
   </div>
 
-  <!-- Controls Cheat Sheet (Bottom Right) -->
+  <!-- In-Game Controls Hint (Bottom Right) -->
   <div id="controls-hud">
-    <div><span class="key-pill">Mouse</span> Araw / Direction</div>
-    <div><span class="key-pill">SPACE</span> Mag-hati / Split (2x)</div>
-    <div><span class="key-pill">R</span> Maglabas ng Food Pellet</div>
+    <div><span class="key-pill">Mouse</span> Move / Steer Direction</div>
+    <div><span class="key-pill">SPACE</span> Split Cell in Half</div>
+    <div><span class="key-pill">R</span> Eject Food (All Cells)</div>
+    <div><span class="key-pill">ESC</span> Leave / Exit Arena</div>
   </div>
 
-  <!-- MINIMAP (Bottom Left - Pag Playing Na) -->
+  <!-- In-Game MINIMAP (Bottom Left - Pag Playing Na) -->
   <div id="minimap-container">
     <div class="minimap-header">
       <span>Map Radar</span>
@@ -659,6 +800,18 @@
     </div>
     <div class="minimap-card">
       <canvas id="minimapCanvas" width="144" height="144"></canvas>
+    </div>
+  </div>
+
+  <!-- Exit Confirmation Modal -->
+  <div id="exitModal">
+    <div class="exit-modal-card">
+      <h3>Exit Game Arena?</h3>
+      <p>Babalik ka sa main landing page. Mase-save ang iyong score record.</p>
+      <div class="exit-modal-actions">
+        <button id="exitCancelBtn" class="btn-exit-cancel">Magpatuloy</button>
+        <button id="exitConfirmBtn" class="btn-exit-confirm">I-exit Na</button>
+      </div>
     </div>
   </div>
 
@@ -670,7 +823,7 @@
         <h1 class="game-title">CELLULAR DEVOUR</h1>
         <p class="game-subtitle">Eject food, split your cell, and dominate the arena.</p>
 
-        <!-- Authenticated Profile Card (Shows when logged in) -->
+        <!-- Authenticated Profile Card -->
         <div id="profileCard" class="profile-card">
           <div class="profile-avatar-wrap">
             <img id="profImg" class="profile-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Richard" alt="avatar">
@@ -685,9 +838,8 @@
           <button id="logoutBtn" class="profile-logout" title="Switch or Logout">Logout</button>
         </div>
 
-        <!-- Social Login Buttons (Shows when not logged in) -->
+        <!-- Social Auth Buttons -->
         <div id="authButtons" class="auth-section">
-          <!-- Google Login Button -->
           <button id="googleLoginBtn" class="btn-oauth btn-google">
             <span class="btn-icon">
               <svg width="18" height="18" viewBox="0 0 24 24">
@@ -700,7 +852,6 @@
             Continue with Google
           </button>
 
-          <!-- Facebook Login Button -->
           <button id="fbLoginBtn" class="btn-oauth btn-fb">
             <span class="btn-icon">
               <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
@@ -713,22 +864,20 @@
 
         <div class="divider"><span>OR PLAY AS GUEST</span></div>
 
-        <!-- Guest Nickname input -->
         <input type="text" id="nicknameInput" class="input-box" placeholder="Enter Nickname..." maxlength="15">
         <button id="playBtn" class="btn-play">ENTER ARENA</button>
 
-        <!-- Key Hints Legend -->
         <div class="key-hints">
           <div><span class="key-pill">R</span> Eject Food</div>
           <div><span class="key-pill">SPACE</span> Split / Hati</div>
           <div><span class="key-pill">Mouse</span> Move Aim</div>
-          <div><span class="key-pill">Radar</span> Minimap (Left)</div>
+          <div><span class="key-pill">ESC</span> Leave Arena</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Google Sign-in Modal Simulator -->
+  <!-- Google Sign-in Modal -->
   <div id="googleModal" class="sub-modal">
     <div class="sub-modal-card">
       <h3 style="font-family:'Outfit'; font-size:1.15rem; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
@@ -740,22 +889,20 @@
         </svg>
         Sign in with Google
       </h3>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:18px;">Choose an account to continue to Cellular Devour</p>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:18px;">Pumili ng account para maglaro sa Cellular Devour</p>
       
-      <!-- Primary Account Option -->
       <div class="account-select-item" onclick="selectAccount('Richard Belen', 'richardbelen99@gmail.com', 'google', 'https://api.dicebear.com/7.x/bottts/svg?seed=RichardBelen')">
         <img src="https://api.dicebear.com/7.x/bottts/svg?seed=RichardBelen" style="width:38px; height:38px; border-radius:50%;" alt="av">
         <div>
-          <div style="font-weight:700; font-size:0.92rem;">Richard Belen</div>
+          <div style="font-weight:800; font-size:0.92rem;">Richard Belen</div>
           <div style="font-size:0.75rem; color:#94a3b8;">richardbelen99@gmail.com</div>
         </div>
       </div>
 
-      <!-- Custom Account Option -->
       <div class="account-select-item" onclick="promptCustomAccount('google')">
         <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.2rem;">+</div>
         <div>
-          <div style="font-weight:700; font-size:0.92rem;">Use another Google account</div>
+          <div style="font-weight:800; font-size:0.92rem;">Use another Google account</div>
           <div style="font-size:0.75rem; color:#94a3b8;">Enter custom Gmail & name</div>
         </div>
       </div>
@@ -764,7 +911,7 @@
     </div>
   </div>
 
-  <!-- Facebook Sign-in Modal Simulator -->
+  <!-- Facebook Sign-in Modal -->
   <div id="fbModal" class="sub-modal">
     <div class="sub-modal-card">
       <h3 style="font-family:'Outfit'; font-size:1.15rem; margin-bottom:6px; display:flex; align-items:center; gap:8px; color:var(--fb-blue);">
@@ -773,12 +920,12 @@
         </svg>
         Log in with Facebook
       </h3>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:18px;">Connect Cellular Devour with your Facebook profile</p>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:18px;">I-connect ang Cellular Devour sa iyong Facebook account</p>
 
       <div class="account-select-item" onclick="selectAccount('Richard Belen', 'richard.belen.fb@facebook.com', 'facebook', 'https://api.dicebear.com/7.x/avataaars/svg?seed=RichardFB')">
         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=RichardFB" style="width:38px; height:38px; border-radius:50%;" alt="av">
         <div>
-          <div style="font-weight:700; font-size:0.92rem;">Continue as Richard</div>
+          <div style="font-weight:800; font-size:0.92rem;">Continue as Richard</div>
           <div style="font-size:0.75rem; color:#94a3b8;">Facebook Profile</div>
         </div>
       </div>
@@ -786,7 +933,7 @@
       <div class="account-select-item" onclick="promptCustomAccount('facebook')">
         <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.2rem;">+</div>
         <div>
-          <div style="font-weight:700; font-size:0.92rem;">Use another Facebook account</div>
+          <div style="font-weight:800; font-size:0.92rem;">Use another Facebook account</div>
           <div style="font-size:0.75rem; color:#94a3b8;">Enter custom name/account</div>
         </div>
       </div>
@@ -796,14 +943,14 @@
   </div>
 
   <script>
-    // --- State & Authentication ---
+    // State & Auth
     let currentUser = null;
     let ws = null;
     let myId = null;
     let mapSize = 3000;
     let isPlaying = false;
     let gameState = { players: [], pellets: [], ejectedPellets: [], obstacles: [] };
-    let camera = { x: 1500, y: 1500, zoom: 1 };
+    let camera = { x: 1500, y: 1500 };
     let mousePos = { x: 0, y: 0 };
     let ejectInterval = null;
 
@@ -826,18 +973,22 @@
     const profBadge = document.getElementById('profBadge');
     const logoutBtn = document.getElementById('logoutBtn');
     const authButtons = document.getElementById('authButtons');
-    const leaderboard = document.getElementById('leaderboard');
-    const leaderboardList = document.getElementById('leaderboardList');
-    const topHud = document.getElementById('top-hud');
+    const topHudLeft = document.getElementById('top-hud-left');
+    const topHudRight = document.getElementById('top-hud-right');
     const hudAvatar = document.getElementById('hudAvatar');
     const hudName = document.getElementById('hudName');
     const hudMass = document.getElementById('hudMass');
+    const leaderboardList = document.getElementById('leaderboardList');
     const controlsHud = document.getElementById('controls-hud');
     const minimapContainer = document.getElementById('minimap-container');
     const borderAlert = document.getElementById('borderAlert');
     const toastNotice = document.getElementById('toast-notice');
+    const exitBtn = document.getElementById('exitBtn');
+    const exitModal = document.getElementById('exitModal');
+    const exitCancelBtn = document.getElementById('exitCancelBtn');
+    const exitConfirmBtn = document.getElementById('exitConfirmBtn');
 
-    // Canvas Resize
+    // Resize
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -845,7 +996,7 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Check LocalStorage on Load
+    // Check LocalStorage Session
     function loadSavedSession() {
       const saved = localStorage.getItem('cellular_user_session');
       if (saved) {
@@ -887,6 +1038,7 @@
     function closeModals() {
       googleModal.classList.remove('active');
       fbModal.classList.remove('active');
+      exitModal.classList.remove('active');
     }
 
     function selectAccount(name, email, provider, avatar) {
@@ -913,7 +1065,7 @@
       showToast('Logged out of account');
     });
 
-    // Sound Synthesizer via Web Audio API
+    // Audio Synth
     let audioCtx = null;
     function playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.15) {
       try {
@@ -935,10 +1087,10 @@
     function showToast(msg) {
       toastNotice.textContent = msg;
       toastNotice.classList.add('show');
-      setTimeout(() => toastNotice.classList.remove('show'), 2800);
+      setTimeout(() => toastNotice.classList.remove('show'), 2600);
     }
 
-    // Connect & Play Arena
+    // Start / Enter Arena
     playBtn.addEventListener('click', startGame);
 
     function startGame() {
@@ -949,9 +1101,8 @@
       overlay.classList.add('hidden');
       isPlaying = true;
 
-      // Show HUD elements
-      topHud.classList.add('active');
-      leaderboard.classList.add('active');
+      topHudLeft.classList.add('active');
+      topHudRight.classList.add('active');
       controlsHud.classList.add('active');
       minimapContainer.classList.add('active');
 
@@ -961,6 +1112,42 @@
       connectWebSocket({ name: chosenName, avatar, authProvider });
     }
 
+    // EXIT GAME FUNCTIONALITY ("lagyan mo exit sa pinaka laro")
+    exitBtn.addEventListener('click', () => {
+      exitModal.classList.add('active');
+    });
+    exitCancelBtn.addEventListener('click', () => {
+      exitModal.classList.remove('active');
+    });
+    exitConfirmBtn.addEventListener('click', () => {
+      exitGameToMenu();
+    });
+
+    function exitGameToMenu() {
+      exitModal.classList.remove('active');
+      isPlaying = false;
+
+      if (ejectInterval) {
+        clearInterval(ejectInterval);
+        ejectInterval = null;
+      }
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'exit' }));
+      }
+
+      // Hide in-game HUDs
+      topHudLeft.classList.remove('active');
+      topHudRight.classList.remove('active');
+      controlsHud.classList.remove('active');
+      minimapContainer.classList.remove('active');
+
+      // Return to landing page
+      overlay.classList.remove('hidden');
+      showToast('Naka-exit ka na sa arena. Maaari kang maglaro muli anumang oras!');
+    }
+
+    // WebSocket Connection
     function connectWebSocket(playerInfo) {
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'join', ...playerInfo }));
@@ -983,8 +1170,8 @@
           gameState = data.state;
           updateLeaderboardAndHUD();
         } else if (data.type === 'burst') {
-          playTone(180, 'sawtooth', 0.25, 0.3);
-          showToast('💥 OBSTACLE BURST! PUMUTOK ANG CELL MO AT LUMAKI KA!');
+          playTone(200, 'sawtooth', 0.25, 0.3);
+          showToast('💥 OBSTACLE BURST! PUMUTOK ANG CELL AT LUMAKI KA!');
         } else if (data.type === 'eaten') {
           playTone(100, 'square', 0.3, 0.3);
           showToast('💀 NAKAIN KA NG MAS MALAKING CELL!');
@@ -995,14 +1182,9 @@
           }, 1500);
         }
       };
-
-      ws.onclose = () => {
-        console.warn('Disconnected from server. Retrying...');
-      };
     }
 
-    // --- Controls & Keybindings ---
-    // 1. Mouse Aim
+    // Controls & Keybinds
     window.addEventListener('mousemove', (e) => {
       mousePos.x = e.clientX;
       mousePos.y = e.clientY;
@@ -1016,22 +1198,33 @@
       ws.send(JSON.stringify({ type: 'move', x: targetX, y: targetY }));
     }
 
-    // 2. Keyboard Controls (R: Eject Food, Space: Split)
     window.addEventListener('keydown', (e) => {
-      if (!isPlaying || !ws || ws.readyState !== WebSocket.OPEN) return;
+      if (!isPlaying) return;
 
-      // Key 'R': Eject Food
+      // ESC: Exit Game
+      if (e.key === 'Escape') {
+        if (exitModal.classList.contains('active')) {
+          exitModal.classList.remove('active');
+        } else {
+          exitModal.classList.add('active');
+        }
+        return;
+      }
+
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+      // Key 'R': Eject Food (Sabay maglalabas lahat ng cells at mababawasan)
       if (e.key === 'r' || e.key === 'R') {
         if (!ejectInterval) {
           sendEject();
           ejectInterval = setInterval(sendEject, 110);
         }
       }
-      // Key Spacebar: Split Cell in half
+      // Spacebar: Split Cell in half
       else if (e.code === 'Space') {
         e.preventDefault();
         ws.send(JSON.stringify({ type: 'split' }));
-        playTone(480, 'sine', 0.12, 0.2);
+        playTone(460, 'sine', 0.12, 0.2);
       }
     });
 
@@ -1047,13 +1240,13 @@
     function sendEject() {
       if (ws && ws.readyState === WebSocket.OPEN && isPlaying) {
         ws.send(JSON.stringify({ type: 'eject' }));
-        playTone(320, 'triangle', 0.08, 0.15);
+        playTone(340, 'triangle', 0.08, 0.15);
       }
     }
 
-    // --- Leaderboard & HUD Update ---
+    // Leaderboard & HUD
     function updateLeaderboardAndHUD() {
-      const me = gameState.players.find(p => p.id === myId);
+      const me = gameState.players ? gameState.players.find(p => p.id === myId) : null;
       if (me) {
         hudMass.textContent = `Mass: ${me.totalMass || 22}`;
       }
@@ -1065,9 +1258,9 @@
       leaderboardList.innerHTML = sorted.map((p, idx) => {
         const isMe = p.id === myId;
         const icon = p.authProvider === 'google' 
-          ? '<span style="color:#ea4335; font-weight:bold; font-size:0.75rem;">[G]</span> '
+          ? '<span style="color:#ea4335; font-weight:800; font-size:0.75rem;">[G]</span> '
           : p.authProvider === 'facebook'
-          ? '<span style="color:#1877f2; font-weight:bold; font-size:0.75rem;">[FB]</span> '
+          ? '<span style="color:#1877f2; font-weight:800; font-size:0.75rem;">[FB]</span> '
           : '<span style="color:#64748b; font-size:0.75rem;">•</span> ';
 
         return `
@@ -1085,12 +1278,12 @@
       })[m]);
     }
 
-    // --- Minimap Logic ("pero dapat siya lang kita para alam niya kung nasa dulo na siya") ---
+    // Minimap (Radar - Ikaw lamang ang makikita)
     function renderMinimap(me) {
       mCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
       const scale = minimapCanvas.width / mapSize;
 
-      // 1. Minimap Grid lines
+      // Minimap Grid
       mCtx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
       mCtx.lineWidth = 1;
       const step = minimapCanvas.width / 4;
@@ -1105,21 +1298,19 @@
         mCtx.stroke();
       }
 
-      // 2. Minimap Border
+      // Minimap Border
       mCtx.strokeStyle = 'rgba(5, 217, 232, 0.4)';
       mCtx.lineWidth = 2;
       mCtx.strokeRect(1, 1, minimapCanvas.width - 2, minimapCanvas.height - 2);
 
       if (!me || !me.cells || me.cells.length === 0) return;
 
-      // Compute primary position ng player
       const avgX = me.cells.reduce((s, c) => s + c.x, 0) / me.cells.length;
       const avgY = me.cells.reduce((s, c) => s + c.y, 0) / me.cells.length;
-
       const miniX = avgX * scale;
       const miniY = avgY * scale;
 
-      // 3. Border Proximity Warning ("alam niya kung nasa dulo na siya or hindi")
+      // Border proximity alert ("alam niya kung nasa dulo na siya")
       const BORDER_THRESHOLD = 320;
       const nearWest = avgX < BORDER_THRESHOLD;
       const nearEast = avgX > mapSize - BORDER_THRESHOLD;
@@ -1138,8 +1329,7 @@
         borderAlert.classList.remove('active');
       }
 
-      // 4. Render ONLY the player's own cell beacon (SIYA LANG ANG KITA)
-      // Pulse ring
+      // Radar scan pulse effect
       const pulseTime = Date.now() / 400;
       const pulseRadius = 5 + (Math.sin(pulseTime) + 1) * 3;
       mCtx.beginPath();
@@ -1148,7 +1338,7 @@
       mCtx.lineWidth = 1.5;
       mCtx.stroke();
 
-      // Main glowing beacon
+      // Glowing local player beacon
       mCtx.beginPath();
       mCtx.arc(miniX, miniY, 4, 0, Math.PI * 2);
       mCtx.fillStyle = '#00ff88';
@@ -1158,10 +1348,10 @@
       mCtx.shadowBlur = 0;
     }
 
-    // --- Main Game Rendering Loop ---
+    // Grid rendering
     function drawGrid(camX, camY) {
-      const gridSize = 60;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
+      const gridSize = 65;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.032)';
       ctx.lineWidth = 1;
 
       const startX = Math.floor((camX - canvas.width / 2) / gridSize) * gridSize;
@@ -1183,10 +1373,10 @@
       }
     }
 
-    // Spiky Obstacle (Virus) Drawing Helper
+    // Spiky Obstacle (Virus)
     function drawObstacle(x, y, radius) {
       const spikes = 16;
-      const rot = Date.now() / 3000;
+      const rot = Date.now() / 3200;
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(rot);
@@ -1202,10 +1392,9 @@
       }
       ctx.closePath();
 
-      // Bio-Virus Glow
       ctx.fillStyle = '#10b981';
       ctx.shadowColor = '#10b981';
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 14;
       ctx.fill();
       ctx.shadowBlur = 0;
 
@@ -1213,7 +1402,7 @@
       ctx.lineWidth = 3.5;
       ctx.stroke();
 
-      // Inner Core
+      // Core
       ctx.beginPath();
       ctx.arc(0, 0, radius * 0.6, 0, Math.PI * 2);
       ctx.fillStyle = '#065f46';
@@ -1222,6 +1411,7 @@
       ctx.restore();
     }
 
+    // Main Game Render Loop
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1236,18 +1426,17 @@
       }
 
       ctx.save();
-      // Apply Camera View
       ctx.translate(canvas.width / 2 - camera.x, canvas.height / 2 - camera.y);
 
-      // Background Grid
+      // Grid
       drawGrid(camera.x, camera.y);
 
-      // Map Borders
-      ctx.strokeStyle = 'rgba(255, 42, 109, 0.4)';
+      // Glowing Map Boundaries
+      ctx.strokeStyle = 'rgba(255, 42, 109, 0.45)';
       ctx.lineWidth = 10;
       ctx.strokeRect(0, 0, mapSize, mapSize);
 
-      // 1. Render Energy Pellets
+      // 1. Pellets (Small Energy Dots)
       if (gameState.pellets) {
         gameState.pellets.forEach(pellet => {
           ctx.beginPath();
@@ -1258,38 +1447,92 @@
         });
       }
 
-      // 2. Render Ejected Food Pellets ('R' Key food)
+      // 2. Ejected Food Pellets (Malalaki at may glow particles ayon sa request)
       if (gameState.ejectedPellets) {
         gameState.ejectedPellets.forEach(ep => {
           ctx.beginPath();
           ctx.arc(ep.x, ep.y, ep.radius, 0, Math.PI * 2);
           ctx.fillStyle = ep.color;
           ctx.shadowColor = ep.color;
-          ctx.shadowBlur = 10;
+          ctx.shadowBlur = 12;
           ctx.fill();
           ctx.shadowBlur = 0;
           ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 2.5;
           ctx.stroke();
+          ctx.closePath();
+
+          // Inner glowing bio-core
+          ctx.beginPath();
+          ctx.arc(ep.x, ep.y, ep.radius * 0.45, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
           ctx.closePath();
         });
       }
 
-      // 3. Render Obstacles (Viruses)
+      // 3. Obstacles (Viruses)
       if (gameState.obstacles) {
         gameState.obstacles.forEach(obs => {
           drawObstacle(obs.x, obs.y, obs.radius);
         });
       }
 
-      // 4. Render All Player Cells
+      // 4. Render All Player Cells with Wall Bending ("nag bebend din pag nadikit sa pader pero onti lang")
       if (gameState.players) {
         gameState.players.forEach(player => {
           if (!player.cells) return;
 
           player.cells.forEach(cell => {
+            // Kalkulahin ang deformation / squish kapag dumidikit sa pader (BENDING ONTI LANG)
+            let scaleX = 1;
+            let scaleY = 1;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            const r = cell.radius;
+            // Left Wall
+            if (cell.x - r < 4) {
+              const penetration = Math.max(0, 4 - (cell.x - r));
+              const squish = Math.min(0.22, (penetration / r) * 0.7);
+              scaleX = 1 - squish;
+              scaleY = 1 + squish * 0.4;
+              offsetX = squish * r * 0.35;
+            }
+            // Right Wall
+            else if (cell.x + r > mapSize - 4) {
+              const penetration = Math.max(0, (cell.x + r) - (mapSize - 4));
+              const squish = Math.min(0.22, (penetration / r) * 0.7);
+              scaleX = 1 - squish;
+              scaleY = 1 + squish * 0.4;
+              offsetX = -squish * r * 0.35;
+            }
+
+            // Top Wall
+            if (cell.y - r < 4) {
+              const penetration = Math.max(0, 4 - (cell.y - r));
+              const squish = Math.min(0.22, (penetration / r) * 0.7);
+              scaleY = 1 - squish;
+              scaleX = scaleX * (1 + squish * 0.4);
+              offsetY = squish * r * 0.35;
+            }
+            // Bottom Wall
+            else if (cell.y + r > mapSize - 4) {
+              const penetration = Math.max(0, (cell.y + r) - (mapSize - 4));
+              const squish = Math.min(0.22, (penetration / r) * 0.7);
+              scaleY = 1 - squish;
+              scaleX = scaleX * (1 + squish * 0.4);
+              offsetY = -squish * r * 0.35;
+            }
+
+            // I-draw ang Cell na may Bending Deformation
+            ctx.save();
+            ctx.translate(cell.x + offsetX, cell.y + offsetY);
+            ctx.scale(scaleX, scaleY);
+
+            // Cell Body
             ctx.beginPath();
-            ctx.arc(cell.x, cell.y, cell.radius, 0, Math.PI * 2);
+            ctx.arc(0, 0, cell.radius, 0, Math.PI * 2);
             ctx.fillStyle = player.color;
             ctx.fill();
             ctx.strokeStyle = '#ffffff';
@@ -1297,18 +1540,27 @@
             ctx.stroke();
             ctx.closePath();
 
-            // Cell Nickname & Mass Label
+            // Inner cell membrane shine ring
+            ctx.beginPath();
+            ctx.arc(0, 0, cell.radius * 0.88, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.restore();
+
+            // Nickname & Mass Label (Nananatiling pantay ang teksto kahit nagbe-bend ang cell)
             ctx.fillStyle = '#ffffff';
             ctx.font = `bold ${Math.max(12, Math.min(22, cell.radius * 0.42))}px Plus Jakarta Sans, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(player.name, cell.x, cell.y);
+            ctx.fillText(player.name, cell.x + offsetX, cell.y + offsetY);
 
-            // Mass counter underneath name if cell is big enough
             if (cell.radius >= 28) {
-              ctx.font = `600 ${Math.max(10, Math.min(16, cell.radius * 0.28))}px Outfit, sans-serif`;
+              ctx.font = `700 ${Math.max(10, Math.min(16, cell.radius * 0.28))}px Outfit, sans-serif`;
               ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-              ctx.fillText(Math.floor((cell.radius * cell.radius) / 20), cell.x, cell.y + (cell.radius * 0.45));
+              ctx.fillText(Math.floor((cell.radius * cell.radius) / 20), cell.x + offsetX, cell.y + offsetY + (cell.radius * 0.45));
             }
           });
         });

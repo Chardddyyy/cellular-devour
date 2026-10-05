@@ -15,6 +15,8 @@ const PELLET_COUNT = 550;
 const OBSTACLE_COUNT = 24;
 const OBSTACLE_RADIUS = 46;
 const MAX_CELLS_PER_PLAYER = 16;
+const EJECTED_PELLET_RADIUS = 11; // Laki-lakihang pellet ayon sa request
+
 const COLORS = [
     '#FF3366', '#33CCFF', '#33FF66', '#FFCC00',
     '#9933FF', '#FF6600', '#00FFCC', '#FF0099'
@@ -45,7 +47,6 @@ function spawnObstacle() {
     };
 }
 
-// Initial Spawn ng Energy Pellets at Obstacles (Viruses)
 for (let i = 0; i < PELLET_COUNT; i++) {
     pellets.push(spawnPellet());
 }
@@ -102,29 +103,30 @@ wss.on('connection', (ws) => {
                 player.targetY = Number(data.y) || 0;
             }
             else if (data.type === 'eject') {
-                // Hotkey 'R': Eject small food pellet
+                // Hotkey 'R': Sabay-sabay maglalabas ang lahat ng split cells ng player
+                // At mababawasan nang kapansin-pansin ang bawat naglalabas na cell
                 if (!player.cells || player.cells.length === 0) return;
 
-                // Hanapin ang pinakamalaking cell o lahat ng cells na radius >= 26
+                const angle = Math.atan2(player.targetY, player.targetX);
+
                 player.cells.forEach(cell => {
-                    if (cell.radius >= 26) {
-                        const angle = Math.atan2(player.targetY, player.targetX);
+                    // Kinakailangan may sapat na radius para makapag-eject
+                    if (cell.radius >= 25) {
+                        // Nababawasan ang nagbibigay na cell (mass loss)
+                        cell.radius = Math.max(20, Math.sqrt(cell.radius * cell.radius - 36));
 
-                        // Bawasan bahagya ang laki ng cell
-                        cell.radius = Math.max(22, Math.sqrt(cell.radius * cell.radius - 12));
-
-                        // Spawn ejected food pellet sa harap ng cell patungo sa mouse
-                        const spawnDist = cell.radius + 12;
+                        // Spawn ng mas malaking food pellet (radius 11)
+                        const spawnDist = cell.radius + EJECTED_PELLET_RADIUS + 4;
                         const px = cell.x + Math.cos(angle) * spawnDist;
                         const py = cell.y + Math.sin(angle) * spawnDist;
 
                         ejectedPellets.push({
                             id: 'ej_' + Math.random().toString(36).substring(2, 9),
-                            x: Math.max(10, Math.min(MAP_SIZE - 10, px)),
-                            y: Math.max(10, Math.min(MAP_SIZE - 10, py)),
-                            vx: Math.cos(angle) * 22,
-                            vy: Math.sin(angle) * 22,
-                            radius: 7,
+                            x: Math.max(EJECTED_PELLET_RADIUS, Math.min(MAP_SIZE - EJECTED_PELLET_RADIUS, px)),
+                            y: Math.max(EJECTED_PELLET_RADIUS, Math.min(MAP_SIZE - EJECTED_PELLET_RADIUS, py)),
+                            vx: Math.cos(angle) * 24,
+                            vy: Math.sin(angle) * 24,
+                            radius: EJECTED_PELLET_RADIUS,
                             color: player.color,
                             shooterId: player.id
                         });
@@ -139,22 +141,23 @@ wss.on('connection', (ws) => {
                 const angle = Math.atan2(player.targetY, player.targetX);
 
                 currentCells.forEach(cell => {
-                    if (cell.radius >= 30 && player.cells.length < MAX_CELLS_PER_PLAYER) {
-                        // Hatiin sa dalawa (pantay na mass)
+                    if (cell.radius >= 29 && player.cells.length < MAX_CELLS_PER_PLAYER) {
+                        // Hatiin sa dalawa
                         const splitRadius = cell.radius / Math.SQRT2;
                         cell.radius = splitRadius;
-                        cell.canMergeAfter = Date.now() + 14000; // 14 seconds cooldown bago mag-merge
+                        // Cooldown bago mag-merge (8 segundo)
+                        cell.canMergeAfter = Date.now() + 8000;
 
-                        // Gumawa ng bagong half cell na mag-sho-shoot forward
+                        // Ang bagong kalahati ay magsho-shoot pasulong
                         const forwardDist = splitRadius + 15;
                         const newCell = {
                             id: 'c_' + Math.random().toString(36).substring(2, 7),
                             x: Math.max(splitRadius, Math.min(MAP_SIZE - splitRadius, cell.x + Math.cos(angle) * forwardDist)),
                             y: Math.max(splitRadius, Math.min(MAP_SIZE - splitRadius, cell.y + Math.sin(angle) * forwardDist)),
-                            vx: Math.cos(angle) * 26,
-                            vy: Math.sin(angle) * 26,
+                            vx: Math.cos(angle) * 25,
+                            vy: Math.sin(angle) * 25,
                             radius: splitRadius,
-                            canMergeAfter: Date.now() + 14000
+                            canMergeAfter: Date.now() + 8000
                         };
 
                         player.cells.push(newCell);
@@ -163,6 +166,10 @@ wss.on('connection', (ws) => {
             }
             else if (data.type === 'respawn') {
                 player.cells = [createInitialCell()];
+            }
+            else if (data.type === 'exit') {
+                // Clear player cells when exiting to main menu
+                player.cells = [];
             }
         } catch (err) {
             console.error('Error handling WS message:', err);
@@ -188,29 +195,28 @@ setInterval(() => {
         ep.x = Math.max(ep.radius, Math.min(MAP_SIZE - ep.radius, ep.x));
         ep.y = Math.max(ep.radius, Math.min(MAP_SIZE - ep.radius, ep.y));
 
-        // Interaction sa Obstacles: kung tumama ang ejected food sa obstacle
-        let consumedByObstacle = false;
+        // Interaction sa Obstacles
+        let consumed = false;
         for (let obs of obstacles) {
             const odx = ep.x - obs.x;
             const ody = ep.y - obs.y;
             if (Math.sqrt(odx * odx + ody * ody) < obs.radius + ep.radius) {
                 obs.hits = (obs.hits || 0) + 1;
-                consumedByObstacle = true;
+                consumed = true;
                 if (obs.hits >= 7 && obstacles.length < 32) {
                     obs.hits = 0;
-                    // Mag-clone ng panibagong obstacle
                     obstacles.push(spawnObstacle());
                 }
                 break;
             }
         }
 
-        if (consumedByObstacle) {
+        if (consumed) {
             ejectedPellets.splice(i, 1);
         }
     }
 
-    // 2. Physics at Movement ng Bawat Player Cell
+    // 2. Physics & Synchronized Movement ng Bawat Player Cell
     Object.values(players).forEach(player => {
         if (!player.cells || player.cells.length === 0) return;
 
@@ -218,10 +224,14 @@ setInterval(() => {
         const pMouseY = player.targetY;
         const dist = Math.sqrt(pMouseX * pMouseX + pMouseY * pMouseY);
 
+        // Center of mass ng player cells para sa dahan-dahang pagdidikit
+        const centerMassX = player.cells.reduce((s, c) => s + c.x, 0) / player.cells.length;
+        const centerMassY = player.cells.reduce((s, c) => s + c.y, 0) / player.cells.length;
+
         player.cells.forEach(cell => {
-            // Movement speed nakadepende sa laki ng cell (mas malaki = mas mabagal)
             const baseSpeed = Math.max(1.8, 7.5 - (cell.radius * 0.022));
 
+            // Sabay na aandar patungo sa mouse
             if (dist > 5) {
                 cell.x += (pMouseX / dist) * baseSpeed + (cell.vx || 0);
                 cell.y += (pMouseY / dist) * baseSpeed + (cell.vy || 0);
@@ -230,41 +240,45 @@ setInterval(() => {
                 cell.y += (cell.vy || 0);
             }
 
+            // Dahan-dahang magnetic pull patungo sa center of mass ng player
+            if (player.cells.length > 1) {
+                const pullX = (centerMassX - cell.x) * 0.025;
+                const pullY = (centerMassY - cell.y) * 0.025;
+                cell.x += pullX;
+                cell.y += pullY;
+            }
+
             // Decay impulse velocities
             cell.vx = (cell.vx || 0) * 0.90;
             cell.vy = (cell.vy || 0) * 0.90;
 
-            // Map Borders
+            // Map Borders (kinakailangan manatili sa loob)
             cell.x = Math.max(cell.radius, Math.min(MAP_SIZE - cell.radius, cell.x));
             cell.y = Math.max(cell.radius, Math.min(MAP_SIZE - cell.radius, cell.y));
 
-            // Kainin ang Energy Pellets
+            // Kainin ang maliliit na Energy Pellets
             pellets.forEach((pellet, pIndex) => {
                 const pdx = cell.x - pellet.x;
                 const pdy = cell.y - pellet.y;
-                const pDist = Math.sqrt(pdx * pdx + pdy * pdy);
-
-                if (pDist < cell.radius) {
+                if (Math.sqrt(pdx * pdx + pdy * pdy) < cell.radius) {
                     cell.radius += 0.22;
                     pellets[pIndex] = spawnPellet();
                 }
             });
 
-            // Kainin ang Ejected Pellets (R food)
+            // Kainin ang Ejected Pellets (Laking pellet, laki rin ng dagdag sa cell)
             for (let eIdx = ejectedPellets.length - 1; eIdx >= 0; eIdx--) {
                 const ep = ejectedPellets[eIdx];
                 const edx = cell.x - ep.x;
                 const edy = cell.y - ep.y;
-                const eDist = Math.sqrt(edx * edx + edy * edy);
-
-                if (eDist < cell.radius) {
-                    cell.radius = Math.sqrt(cell.radius * cell.radius + 15);
+                if (Math.sqrt(edx * edx + edy * edy) < cell.radius) {
+                    cell.radius = Math.sqrt(cell.radius * cell.radius + 32);
                     ejectedPellets.splice(eIdx, 1);
                 }
             }
         });
 
-        // 3. Soft Collision at Re-merging ng Sariling Cells ng Player
+        // 3. Dahan-dahang Pagdidikit at Smooth Re-merging
         const now = Date.now();
         for (let i = 0; i < player.cells.length; i++) {
             for (let j = i + 1; j < player.cells.length; j++) {
@@ -278,15 +292,14 @@ setInterval(() => {
                 const minDist = c1.radius + c2.radius;
 
                 if (cDist < minDist) {
-                    // Puwede na bang mag-merge? (Tapos na ang 14s timer)
+                    // Kung tapos na ang merge timer, mag-isang muli ang dalawa!
                     if (now >= c1.canMergeAfter && now >= c2.canMergeAfter) {
-                        // Pag-isahin ang dalawang bilog
                         c1.radius = Math.sqrt(c1.radius * c1.radius + c2.radius * c2.radius);
                         player.cells.splice(j, 1);
                         j--;
                     } else {
-                        // Push apart bahagya para hindi magpatong nang buo habang bawal pa mag-merge
-                        const overlap = (minDist - cDist) * 0.15;
+                        // Soft overlap repulsion
+                        const overlap = (minDist - cDist) * 0.12;
                         const nx = (cdx / (cDist || 1)) * overlap;
                         const ny = (cdy / (cDist || 1)) * overlap;
                         c1.x -= nx;
@@ -298,8 +311,7 @@ setInterval(() => {
             }
         }
 
-        // 4. Obstacle (Virus) Interaction:
-        // "pag kasing laki mo yung obstackle bubutok ka at lalaki ka onti"
+        // 4. Obstacle (Virus) Interaction
         for (let obsIndex = obstacles.length - 1; obsIndex >= 0; obsIndex--) {
             const obs = obstacles[obsIndex];
             if (!obs) continue;
@@ -312,19 +324,17 @@ setInterval(() => {
                 const ody = cell.y - obs.y;
                 const oDist = Math.sqrt(odx * odx + ody * ody);
 
-                // Check collision sa obstacle
                 if (oDist < cell.radius + obs.radius) {
-                    // Kung kasing laki o mas malaki sa obstacle (radius >= obstacle radius * 0.95)
+                    // Kung kasing laki o mas malaki sa obstacle
                     if (cell.radius >= obs.radius * 0.95) {
-                        // BUBUTOK ANG CELL! At lalaki ka onti (+25 mass bonus)
-                        const boostedRadius = Math.sqrt(cell.radius * cell.radius + 65);
-                        
-                        // Bilang ng shards na paghahatian ng mass (4 hanggang 6 na piraso)
-                        const shardsCount = Math.min(6, MAX_CELLS_PER_PLAYER - player.cells.length + 1);
+                        // BUBUTOK ANG CELL! At lalaki ka onti (+30 mass bonus)
+                        const boostedRadius = Math.sqrt(cell.radius * cell.radius + 75);
+                        const shardsCount = Math.min(5, MAX_CELLS_PER_PLAYER - player.cells.length + 1);
+
                         if (shardsCount > 1) {
                             const shardRadius = boostedRadius / Math.sqrt(shardsCount);
                             cell.radius = shardRadius;
-                            cell.canMergeAfter = Date.now() + 16000;
+                            cell.canMergeAfter = Date.now() + 10000;
 
                             for (let s = 1; s < shardsCount; s++) {
                                 const angle = (Math.PI * 2 / shardsCount) * s;
@@ -335,14 +345,13 @@ setInterval(() => {
                                     vx: Math.cos(angle) * 22,
                                     vy: Math.sin(angle) * 22,
                                     radius: shardRadius,
-                                    canMergeAfter: Date.now() + 16000
+                                    canMergeAfter: Date.now() + 10000
                                 });
                             }
                         } else {
                             cell.radius = boostedRadius;
                         }
 
-                        // Respawn ang obstacle sa ibang lugar
                         obstacles[obsIndex] = spawnObstacle();
 
                         if (player.ws.readyState === WebSocket.OPEN) {
@@ -369,18 +378,15 @@ setInterval(() => {
             for (let c1 of p1.cells) {
                 for (let k = p2.cells.length - 1; k >= 0; k--) {
                     const c2 = p2.cells[k];
-                    // Kailangan mas malaki ng 12% para makakain
                     if (c1.radius > c2.radius * 1.12) {
                         const dx = c1.x - c2.x;
                         const dy = c1.y - c2.y;
                         const dist = Math.sqrt(dx * dx + dy * dy);
 
                         if (dist < c1.radius - (c2.radius / 3)) {
-                            // Lumalaki si p1 cell
                             c1.radius = Math.sqrt(c1.radius * c1.radius + c2.radius * c2.radius * 0.7);
                             p2.cells.splice(k, 1);
 
-                            // Kung naubos lahat ng cell ni p2
                             if (p2.cells.length === 0) {
                                 if (p2.ws.readyState === WebSocket.OPEN) {
                                     p2.ws.send(JSON.stringify({ type: 'eaten' }));
@@ -393,7 +399,7 @@ setInterval(() => {
         }
     }
 
-    // 6. Broadcast Game State sa Lahat ng Clients
+    // 6. Broadcast Game State
     const gameState = {
         players: Object.values(players).map(p => ({
             id: p.id,
