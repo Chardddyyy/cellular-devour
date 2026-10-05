@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cellular Devour - Eat, Grow & Dominate</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { overflow: hidden; background: #0b0e14; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    canvas { display: block; }
+    
+    #overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(11, 14, 20, 0.92); display: flex;
+      justify-content: center; align-items: center; z-index: 10;
+    }
+    .card {
+      background: #161b26; padding: 40px; border-radius: 16px;
+      text-align: center; color: white; width: 350px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid #232d3f;
+    }
+    .card h1 { 
+      margin-bottom: 6px; font-size: 2.1rem; font-weight: 800;
+      letter-spacing: 1px; color: #ff3366; 
+    }
+    .card p { color: #8a99ad; font-size: 0.9rem; margin-bottom: 22px; }
+    .card input {
+      width: 100%; padding: 14px; margin-bottom: 16px; border: 1px solid #2d384d;
+      background: #0b0e14; border-radius: 8px; outline: none; font-size: 1rem;
+      color: white; text-align: center;
+    }
+    .card input:focus { border-color: #ff3366; }
+    .card button {
+      width: 100%; padding: 14px; background: #ff3366; border: none;
+      border-radius: 8px; color: white; font-weight: bold; font-size: 1.05rem;
+      cursor: pointer; transition: transform 0.1s, background 0.2s;
+    }
+    .card button:hover { background: #e62e5c; transform: translateY(-1px); }
+
+    #controls-hint {
+      margin-top: 18px; font-size: 0.82rem; color: #5b6b7f; line-height: 1.5;
+    }
+
+    #leaderboard {
+      position: absolute; top: 20px; right: 20px;
+      background: rgba(22, 27, 38, 0.85); padding: 16px 20px;
+      border-radius: 12px; color: white; min-width: 200px; z-index: 5;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+    }
+    #leaderboard h3 { 
+      font-size: 0.95rem; margin-bottom: 10px; border-bottom: 1px solid #2d384d; 
+      padding-bottom: 6px; color: #ff3366; text-transform: uppercase; letter-spacing: 1px;
+    }
+    #leaderboard ol { padding-left: 20px; font-size: 0.9rem; color: #d0d7de; }
+    #leaderboard li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+  <div id="overlay">
+    <div class="card">
+      <h1>CELLULAR DEVOUR</h1>
+      <p>Absorb energy dots. Devour smaller cells.</p>
+      <input type="text" id="nickname" placeholder="Enter Nickname" maxlength="14">
+      <button id="startBtn">PLAY NOW</button>
+      <div id="controls-hint">
+        <strong>Mouse:</strong> Move Direction<br>
+        <strong>Spacebar:</strong> Split / Dash Attack
+      </div>
+    </div>
+  </div>
+
+  <div id="leaderboard">
+    <h3>Leaderboard</h3>
+    <ol id="leaderboardList"></ol>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    const nicknameInput = document.getElementById('nickname');
+    const startBtn = document.getElementById('startBtn');
+    const leaderboardList = document.getElementById('leaderboardList');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    let ws;
+    let myId = null;
+    let mapSize = 3000;
+    let gameState = { players: [], pellets: [] };
+
+    startBtn.addEventListener('click', () => {
+      const name = nicknameInput.value.trim() || 'Cell';
+      overlay.style.display = 'none';
+
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${location.host}`);
+
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ type: 'join', name }));
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'init') {
+          myId = data.id;
+          mapSize = data.mapSize;
+        } else if (data.type === 'update') {
+          gameState = data.state;
+          updateLeaderboard();
+        } else if (data.type === 'eaten') {
+          console.log('You were devoured!');
+        }
+      };
+    });
+
+    // Mouse Movement Tracking
+    window.addEventListener('mousemove', (e) => {
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      const targetX = e.clientX - canvas.width / 2;
+      const targetY = e.clientY - canvas.height / 2;
+      ws.send(JSON.stringify({ type: 'move', x: targetX, y: targetY }));
+    });
+
+    // Spacebar Keybind para sa Cell Split / Dash
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'split' }));
+      }
+    });
+
+    function updateLeaderboard() {
+      const sorted = [...gameState.players].sort((a, b) => b.radius - a.radius).slice(0, 5);
+      leaderboardList.innerHTML = sorted
+        .map(p => `<li>${p.name} (${Math.floor(p.radius)})</li>`)
+        .join('');
+    }
+
+    function drawGrid(meX, meY) {
+      const gridSize = 60;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+
+      const startX = Math.floor((meX - canvas.width / 2) / gridSize) * gridSize;
+      const endX = startX + canvas.width + gridSize;
+      const startY = Math.floor((meY - canvas.height / 2) / gridSize) * gridSize;
+      const endY = startY + canvas.height + gridSize;
+
+      for (let x = startX; x < endX; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, startY);
+        ctx.lineTo(x, endY);
+        ctx.stroke();
+      }
+      for (let y = startY; y < endY; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(startX, y);
+        ctx.lineTo(endX, y);
+        ctx.stroke();
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const me = gameState.players.find(p => p.id === myId);
+
+      ctx.save();
+      if (me) {
+        // Camera centering sa player cell
+        ctx.translate(canvas.width / 2 - me.x, canvas.height / 2 - me.y);
+        drawGrid(me.x, me.y);
+      }
+
+      // Map Boundary
+      ctx.strokeStyle = '#232d3f';
+      ctx.lineWidth = 8;
+      ctx.strokeRect(0, 0, mapSize, mapSize);
+
+      // Render Energy Pellets
+      gameState.pellets.forEach(pellet => {
+        ctx.beginPath();
+        ctx.arc(pellet.x, pellet.y, pellet.radius, 0, Math.PI * 2);
+        ctx.fillStyle = pellet.color;
+        ctx.fill();
+        ctx.closePath();
+      });
+
+      // Render Player Cells
+      gameState.players.forEach(player => {
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+        ctx.fillStyle = player.color;
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.closePath();
+
+        // Player Nickname Label
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(player.name, player.x, player.y + 4);
+      });
+
+      ctx.restore();
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+  </script>
+</body>
+</html>
