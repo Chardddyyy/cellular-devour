@@ -823,6 +823,11 @@
         <h1 class="game-title">CELLULAR DEVOUR</h1>
         <p class="game-subtitle">Eject food, split your cell, and dominate the arena.</p>
 
+        <!-- File Protocol Notice -->
+        <div id="fileNotice" style="display:none; background:rgba(5,217,232,0.12); border:1px solid rgba(5,217,232,0.3); border-radius:12px; padding:10px 14px; margin-bottom:18px; font-size:0.82rem; color:#05d9e8; line-height:1.4;">
+          💡 For multiplayer features, visit <a href="http://localhost:3000" style="color:#ffffff; font-weight:bold; text-decoration:underline;">http://localhost:3000</a>
+        </div>
+
         <!-- Authenticated Profile Card -->
         <div id="profileCard" class="profile-card">
           <div class="profile-avatar-wrap">
@@ -1010,6 +1015,11 @@
     }
     loadSavedSession();
 
+    if (location.protocol === 'file:') {
+      const fn = document.getElementById('fileNotice');
+      if (fn) fn.style.display = 'block';
+    }
+
     function renderProfile() {
       if (currentUser) {
         profileCard.classList.add('active');
@@ -1154,8 +1164,22 @@
         return;
       }
 
-      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      ws = new WebSocket(`${protocol}//${location.host}`);
+      const wsHost = (location.host && location.host.trim() !== '') ? location.host : 'localhost:3000';
+      const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${wsProtocol}//${wsHost}`;
+
+      try {
+        ws = new WebSocket(wsUrl);
+      } catch (err) {
+        console.error('Failed to construct WebSocket:', err);
+        showToast('⚠️ Connection error. Please open http://localhost:3000 in your browser.');
+        return;
+      }
+
+      ws.onerror = (err) => {
+        console.warn('WebSocket error:', err);
+        showToast('⚠️ Server connection failed. Ensure "npm start" is running on localhost:3000.');
+      };
 
       ws.onopen = () => {
         ws.send(JSON.stringify({ type: 'join', ...playerInfo }));
